@@ -12,15 +12,20 @@ http://www.gnu.org/licenses/agpl.html
 The addon includes a dictionary derived from the JMdict dictionary file. JMdict is property of the Electronic Dictionary Research and Development Group, and is used in conformance with the Group's licence.
 See http://www.edrdg.org/jmdict/j_jmdict.html
 
-Tested with the GitHub version of MorphMan, dated Dec 31 2014.
+Tested with the old GitHub version of MorphMan, dated Dec 31 2014. This does not work with recent versions of Anki!
 https://github.com/jre2/JapaneseStudy/tree/master/anki/plugins/morphman3
+
+Not tested with ChangSpivey's improved version, but may be worth trying.
+https://github.com/ChangSpivey/MorphMan
+
+I intend to remove the MorphMan dependency because of licensing issues.
 
 Instructions
 ------------
 
 It is necessary to have a suitable version of MorphMan installed, and do a MorphMan Recalc before running this addon.
 
-Copy kv.py and the kanjivocab directory into the Anki addons directory. Edit config.py, at least for the first two entries:
+Copy KanjiVocab.py and the kanjivocab directory into the Anki addons directory. Edit config.py, at least for the first two entries:
 
 * "noteType" is the name of the note type you wish to add the words to;
 * "fieldKanji" is the name of the field containing only the kanji character being tested.
