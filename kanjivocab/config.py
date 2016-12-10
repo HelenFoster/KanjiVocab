@@ -29,14 +29,20 @@ config["fieldVocabResponse"] = u"VocabResponse"
 #Extra vocab on the back of the card. FIELD WILL BE OVERWRITTEN.
 config["fieldVocabExtra"] = u"VocabExtra"
 
+#Fields to analyze for known words,
+#as a list of (note type, field name, split with MeCab?)
+#but splitting is not supported yet - so only use vocab decks for the moment!
+config["analyze"] = [
+    ("vocab", "expression", False),
+    ("vocab", "kana", False),
+]
+
 
 
 config["numQuestions"] = 4
 config["numQuestionsExtra"] = 4
 config["questionChar"] = u"〇"
 
-config["pathKnownDB"] = os.path.join(mw.pm.profileFolder(), "dbs", "known.db")
-config["pathMatureDB"] = os.path.join(mw.pm.profileFolder(), "dbs", "mature.db")
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
 
 def wordIsP1(wordInfo):

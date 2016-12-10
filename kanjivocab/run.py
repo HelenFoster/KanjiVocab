@@ -5,7 +5,6 @@
 
 from aqt import mw
 from aqt.utils import *
-import morph.morphemes
 
 
 def updateKanjiVocab():
@@ -29,7 +28,7 @@ def _updateKanjiVocab():
         return result + "Can't find note type: " + conf["noteType"] + ": please edit config.py\n"
     result += "Found note type: " + conf["noteType"] + "\n"
     
-    mid = model["id"]
+    kanjiModelID = model["id"]
     fieldNames = [fld[u"name"] for fld in model["flds"]]
     if conf["fieldKanji"] in fieldNames:
         result += "Found kanji field\n"
@@ -56,20 +55,19 @@ def _updateKanjiVocab():
         return result + "No fields to update: please edit config.py\n"
     
     
-    mw.progress.update(label="Loading MorphMan \"known\" DB")
-    try:
-        knownDB = morph.morphemes.MorphDb(conf["pathKnownDB"])
-    except IOError:
-        return result + "Can't load known DB"
-    result += "Loaded known DB (%d entries)\n" % (len(knownDB.db),)
-    
-    
-    mw.progress.update(label="Loading MorphMan \"mature\" DB")
-    try:
-        matureDB = morph.morphemes.MorphDb(conf["pathMatureDB"])
-    except IOError:
-        return result + "Can't load mature DB"
-    result += "Loaded mature DB (%d entries)\n" % (len(matureDB.db),)
+    fieldsToAnalyze = []
+    for (modelName, fieldName, doSplit) in conf["analyze"]:
+        model = mw.col.models.byName(modelName)
+        if model is None:
+            result += "Warning: can't find model %s to analyze: please edit config.py to fix\n" % modelName
+            continue
+        fieldNames = [fld[u"name"] for fld in model["flds"]]
+        if fieldName not in fieldNames:
+            result += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (fieldName, modelName)
+            continue
+        fieldsToAnalyze.append((model, fieldName, doSplit))
+    if not fieldsToAnalyze:
+        result += "Warning: can't find any fields to analyze: please edit config.py if you want them\n"
     
     
     mw.progress.update(label="Loading dictionary")
@@ -81,11 +79,24 @@ def _updateKanjiVocab():
     
     
     mw.progress.update(label="Marking known words")
-    for morpheme in knownDB.db:
-        words.learnPart(morpheme.base, kanjivocab.core.KNOWN_KNOWN)
-    for morpheme in matureDB.db:
-        words.learnPart(morpheme.base, kanjivocab.core.KNOWN_MATURE)
-    result += "Marked known words\n"
+    noteCount = 0
+    for (model, fieldName, doSplit) in fieldsToAnalyze:
+        nids = mw.col.findNotes("mid:" + str(model["id"]))
+        noteCount += len(nids)
+        for nid in nids:
+            note = mw.col.getNote(nid)
+            noteActive = False
+            noteMature = False
+            for card in note.cards():
+                cardActive = card.queue not in (-1, 0) #not suspended or new
+                cardMature = cardActive and card.ivl >= 21 #TODO: configurable?
+                noteActive = noteActive or cardActive
+                noteMature = noteMature or cardMature
+            if noteMature:
+                words.learnPart(note[fieldName], kanjivocab.core.KNOWN_MATURE)
+            elif noteActive:
+                words.learnPart(note[fieldName], kanjivocab.core.KNOWN_KNOWN)
+    result += "Marked known words from %d cells\n" % noteCount
     
     
     mw.progress.update(label="Creating questions")
@@ -95,7 +106,7 @@ def _updateKanjiVocab():
     
     mw.progress.update(label="Updating notes")
     
-    nids = mw.col.findNotes("mid:" + str(mid))
+    nids = mw.col.findNotes("mid:" + str(kanjiModelID))
     result += "%d notes to be updated\n" % len(nids)
     for nid in nids:
         note = mw.col.getNote(nid)
