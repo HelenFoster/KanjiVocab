@@ -1,0 +1,15 @@
+.kv_kanji_known, .kv_kanji_mature {
+ background-color: #40ff40
+}
+
+.kv_kana_known, .kv_kana_mature {
+ background-color: #ffff40
+}
+
+.kv_confuse {
+ color: #ff0000
+}
+
+.kv_likely {
+ color: #800080
+}
