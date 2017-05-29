@@ -21,7 +21,8 @@ Copy KanjiVocab.py and the kanjivocab directory into the Anki addons directory. 
 
 * "noteType" is the name of the note type you wish to add the words to;
 * "fieldKanji" is the name of the field containing only the kanji character being tested;
-* "analyze" is a list of fields to analyze, formatted as tuples (note type, field name, split text into words?) - but splitting is not supported yet, so this addon will only work with vocab decks for the moment!
+* "scanVocab" is a list of vocab note types to analyze, formatted as tuples (noteType, expressionFieldName, readingFieldName) - set readingFieldName to None (without quotes) if you don't have a reading field;
+* "scanText" is a list of note types with text fields to analyze, formatted as tuples (noteType, fieldName). A note type can appear more than once, with a different field. THIS DOESN'T WORK YET!
 
 Add fields to your kanji deck for the new information. By default, the names are:
 

@@ -29,12 +29,19 @@ config["fieldVocabResponse"] = u"VocabResponse"
 #Extra vocab on the back of the card. FIELD WILL BE OVERWRITTEN.
 config["fieldVocabExtra"] = u"VocabExtra"
 
-#Fields to analyze for known words,
-#as a list of (note type, field name, split with MeCab?)
-#but splitting is not supported yet - so only use vocab decks for the moment!
-config["analyze"] = [
-    ("vocab", "expression", False),
-    ("vocab", "kana", False),
+#Vocab cards to scan for known words,
+#as a list of (noteType, expressionFieldName, readingFieldName).
+#If you don't have a reading field, set readingFieldName to None.
+config["scanVocab"] = [
+    ("vocab", "expression", "kana"),
+]
+
+#Other fields to scan for known words, split with MeCab,
+#as a list of (noteType, fieldName).
+#A note type can appear more than once, with a different field.
+#THIS DOESN'T WORK YET!
+config["scanText"] = [
+    ("Nayrs Japanese Core5000", "Expression"),
 ]
 
 

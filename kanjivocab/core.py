@@ -179,7 +179,13 @@ class Words:
             expressions = self._dicT[reading]
             ERs = [(expression, reading) for expression in expressions]
             self._learnPartHelp(ERs, KNOWN_NOT, known)
-
+    
+    def learnVocab(self, expression, reading, known):
+        if expression == reading or reading == "":
+            self.learnPart(expression, known)
+        else:
+            self.learn(expression, reading, known, known)
+    
     def iterGen(self):
         dic = self._dic
         for expression in dic:

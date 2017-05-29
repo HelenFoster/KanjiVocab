@@ -55,18 +55,27 @@ def _updateKanjiVocab():
         return result + "No fields to update: please edit config.py\n"
     
     
-    fieldsToAnalyze = []
-    for (modelName, fieldName, doSplit) in conf["analyze"]:
+    if conf["scanText"]:
+        result += "Warning: scanText doesn't work yet\n"
+    
+    toAnalyze1 = [(True,) + x for x in conf["scanVocab"]]
+    toAnalyze1 += [(False,) + x + (None,) for x in conf["scanText"]]
+    toAnalyze = []
+    for (isVocab, modelName, expressionFieldName, readingFieldName) in toAnalyze1:
         model = mw.col.models.byName(modelName)
         if model is None:
             result += "Warning: can't find model %s to analyze: please edit config.py to fix\n" % modelName
             continue
         fieldNames = [fld[u"name"] for fld in model["flds"]]
-        if fieldName not in fieldNames:
-            result += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (fieldName, modelName)
+        if expressionFieldName not in fieldNames:
+            result += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (expressionFieldName, modelName)
             continue
-        fieldsToAnalyze.append((model, fieldName, doSplit))
-    if not fieldsToAnalyze:
+        if readingFieldName is not None and readingFieldName not in fieldNames:
+            result += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (readingFieldName, modelName)
+            continue
+        toAnalyze.append((isVocab, model, expressionFieldName, readingFieldName)) #note: model not modelName
+    
+    if not toAnalyze:
         result += "Warning: can't find any fields to analyze: please edit config.py if you want them\n"
     
     
@@ -79,10 +88,15 @@ def _updateKanjiVocab():
     
     
     mw.progress.update(label="Marking known words")
-    noteCount = 0
-    for (model, fieldName, doSplit) in fieldsToAnalyze:
+    noteCountVocab = 0
+    noteCountText = 0
+    for (isVocab, model, expressionFieldName, readingFieldName) in toAnalyze:
         nids = mw.col.findNotes("mid:" + str(model["id"]))
-        noteCount += len(nids)
+        if isVocab:
+            noteCountVocab += len(nids)
+        else:
+            pass
+            #noteCountText += len(nids)
         for nid in nids:
             note = mw.col.getNote(nid)
             noteActive = False
@@ -92,11 +106,23 @@ def _updateKanjiVocab():
                 cardMature = cardActive and card.ivl >= 21 #TODO: configurable?
                 noteActive = noteActive or cardActive
                 noteMature = noteMature or cardMature
-            if noteMature:
-                words.learnPart(note[fieldName], kanjivocab.core.KNOWN_MATURE)
-            elif noteActive:
-                words.learnPart(note[fieldName], kanjivocab.core.KNOWN_KNOWN)
-    result += "Marked known words from %d cells\n" % noteCount
+            if noteActive:
+                known = kanjivocab.core.KNOWN_KNOWN
+                if noteMature:
+                    known = kanjivocab.core.KNOWN_MATURE
+                if isVocab:
+                    if readingFieldName is None:
+                        words.learnPart(note[expressionFieldName], known)
+                    else:
+                        words.learnVocab(note[expressionFieldName], note[readingFieldName], known)
+                else:
+                    pass
+                    #TODO splitting
+    
+    if noteCountVocab > 0:
+        result += "Marked known words from %d vocab notes\n" % noteCountVocab
+    if noteCountText > 0:
+        result += "Marked known words from %d text cells\n" % noteCountText
     
     
     mw.progress.update(label="Creating questions")
@@ -107,7 +133,7 @@ def _updateKanjiVocab():
     mw.progress.update(label="Updating notes")
     
     nids = mw.col.findNotes("mid:" + str(kanjiModelID))
-    result += "%d notes to be updated\n" % len(nids)
+    result += "%d kanji notes to be updated\n" % len(nids)
     for nid in nids:
         note = mw.col.getNote(nid)
         kanji = note[conf["fieldKanji"]]
