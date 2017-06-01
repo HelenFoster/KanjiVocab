@@ -17,6 +17,8 @@ See http://www.edrdg.org/jmdict/j_jmdict.html
 Instructions
 ------------
 
+Always backup your collection before installing an addon that modifies it!
+
 Copy KanjiVocab.py and the kanjivocab directory into the Anki addons directory. Edit config.py:
 
 * "noteType" is the name of the note type you wish to add the words to;
@@ -29,6 +31,8 @@ Add fields to your kanji deck for the new information. By default, the names are
 * "VocabQuestion" for the words with masked kanji (put this on the front of the card);
 * "VocabResponse" for the answers to the questions (put this on the back of the card, ideally so that it appears in the same place as VocabQuestion);
 * "VocabExtra" for words which would have more than one likely answer (put this on the back of the card).
+
+The above fields contain furigana, so add them using {{furigana:VocabQuestion}} etc.
 
 Add CSS to your kanji deck to style the words as you like. There is an example in cards_example.css (so just copy that unless you have a different idea). Each word will have exactly one of the following classes:
 
