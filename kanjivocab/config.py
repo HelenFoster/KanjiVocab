@@ -39,7 +39,6 @@ config["scanVocab"] = [
 #Other fields to scan for known words, split with MeCab,
 #as a list of (noteType, fieldName).
 #A note type can appear more than once, with a different field.
-#THIS DOESN'T WORK YET!
 config["scanText"] = [
     ("Nayrs Japanese Core5000", "Expression"),
 ]
@@ -51,6 +50,9 @@ config["numQuestionsExtra"] = 4
 config["questionChar"] = u"〇"
 
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
+
+#Using '@' to split results.
+config["mecabArgs"] = ['--node-format="%m@%f[6]@"']
 
 def wordIsP1(wordInfo):
     p = wordInfo.pris

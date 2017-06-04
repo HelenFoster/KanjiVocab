@@ -19,6 +19,8 @@ def _updateKanjiVocab():
     reload(kanjivocab.core)
     import kanjivocab.config
     reload(kanjivocab.config)
+    import kanjivocab.splitter
+    reload(kanjivocab.splitter)
     
     conf = kanjivocab.config.config
     result = ""
@@ -56,7 +58,12 @@ def _updateKanjiVocab():
     
     
     if conf["scanText"]:
-        result += "Warning: scanText doesn't work yet\n"
+        try:
+            splitter = kanjivocab.splitter.Splitter(conf["mecabArgs"])
+        except Exception as e:
+            result += e.message + "\n"
+            result += "Warning: Can't do sentence scan: check Japanese Support is installed and working properly\n"
+            conf["scanText"] = []
     
     toAnalyze1 = [(True,) + x for x in conf["scanVocab"]]
     toAnalyze1 += [(False,) + x + (None,) for x in conf["scanText"]]
@@ -95,8 +102,7 @@ def _updateKanjiVocab():
         if isVocab:
             noteCountVocab += len(nids)
         else:
-            pass
-            #noteCountText += len(nids)
+            noteCountText += len(nids)
         for nid in nids:
             note = mw.col.getNote(nid)
             noteActive = False
@@ -107,6 +113,7 @@ def _updateKanjiVocab():
                 noteActive = noteActive or cardActive
                 noteMature = noteMature or cardMature
             if noteActive:
+                #move note counts here?
                 known = kanjivocab.core.KNOWN_KNOWN
                 if noteMature:
                     known = kanjivocab.core.KNOWN_MATURE
@@ -116,8 +123,8 @@ def _updateKanjiVocab():
                     else:
                         words.learnVocab(note[expressionFieldName], note[readingFieldName], known)
                 else:
-                    pass
-                    #TODO splitting
+                    for wordItem in splitter.analyze(note[expressionFieldName]):
+                        words.learnPart(wordItem, known)
     
     if noteCountVocab > 0:
         result += "Marked known words from %d vocab notes\n" % noteCountVocab
