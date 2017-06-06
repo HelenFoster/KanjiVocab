@@ -10,6 +10,12 @@ KNOWN_MATURE = 0
 KNOWN_KNOWN = 1
 KNOWN_NOT = 2
 
+LEARNED_YES = 0
+LEARNED_ALREADY = 1
+LEARNED_NOTFOUND = 2
+LEARNED_CONFUSE = 3
+LEARNED_NOTKNOWN = 4
+
 
 
 def isKanji(ch):
@@ -50,9 +56,17 @@ class WordInfo:
         self.kanjiKnown = kanjiKnown
         self.kanaKnown = kanaKnown
     def learnKanji(self, known):
+        result = self._learning(known)
         self.kanjiKnown = min(self.kanjiKnown, known)
+        return result
     def learnKana(self, known):
+        result = self._learning(known)
         self.kanaKnown = min(self.kanaKnown, known)
+        return result
+    def _learning(self, known):
+        result = self.kanjiKnown == KNOWN_NOT
+        result = result and self.kanaKnown == KNOWN_NOT
+        return result and known != KNOWN_NOT
 
 
 
@@ -146,15 +160,18 @@ class Words:
     
     def _learnFull(self, expression, reading, kanjiKnown, kanaKnown):
         if self.contains(expression, reading):
-            self._dic[expression][reading].learnKanji(kanjiKnown)
-            self._dic[expression][reading].learnKana(kanaKnown)
+            result1 = self._dic[expression][reading].learnKanji(kanjiKnown)
+            result2 = self._dic[expression][reading].learnKana(kanaKnown)
+            result = result1 or result2
+            return LEARNED_YES if result else LEARNED_ALREADY
         else:
             self.add(expression, reading, WordInfo(kanjiKnown=kanjiKnown, kanaKnown=kanaKnown))
+            return LEARNED_YES
     
     def _learnPartHelp(self, ERs, kanjiKnown, kanaKnown):
         if (len(ERs) == 1):
             (expression, reading) = ERs[0]
-            self._learnFull(expression, reading, kanjiKnown, kanaKnown)
+            return self._learnFull(expression, reading, kanjiKnown, kanaKnown)
         else:
             resultER = None
             candidates = 0
@@ -166,25 +183,33 @@ class Words:
                     candidates += 1
             if resultER is not None and candidates == 1:
                 (expression, reading) = resultER
-                self._learnFull(expression, reading, kanjiKnown, kanaKnown)
+                return self._learnFull(expression, reading, kanjiKnown, kanaKnown)
+            else:
+                return LEARNED_CONFUSE
     
     def learnPart(self, text, known):
-        if self._dic.has_key(text):
+        if known == KNOWN_NOT:
+            return LEARNED_NOTKNOWN
+        elif self._dic.has_key(text):
             expression = text
             readings = self._dic[expression]
             ERs = [(expression, reading) for reading in readings]
-            self._learnPartHelp(ERs, known, KNOWN_NOT)
+            return self._learnPartHelp(ERs, known, KNOWN_NOT)
         elif self._dicT.has_key(text):
             reading = text
             expressions = self._dicT[reading]
             ERs = [(expression, reading) for expression in expressions]
-            self._learnPartHelp(ERs, KNOWN_NOT, known)
+            return self._learnPartHelp(ERs, KNOWN_NOT, known)
+        else:
+            return LEARNED_NOTFOUND
     
     def learnVocab(self, expression, reading, known):
-        if expression == reading or reading == "":
-            self.learnPart(expression, known)
+        if known == KNOWN_NOT:
+            return LEARNED_NOTKNOWN
+        elif expression == reading or reading == "":
+            return self.learnPart(expression, known)
         else:
-            self._learnFull(expression, reading, known, known)
+            return self._learnFull(expression, reading, known, known)
     
     def iterGen(self):
         dic = self._dic
