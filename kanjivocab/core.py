@@ -144,7 +144,7 @@ class Words:
         dic = self._dic
         return dic.has_key(expression) and dic[expression].has_key(reading)
     
-    def learn(self, expression, reading, kanjiKnown, kanaKnown):
+    def _learnFull(self, expression, reading, kanjiKnown, kanaKnown):
         if self.contains(expression, reading):
             self._dic[expression][reading].learnKanji(kanjiKnown)
             self._dic[expression][reading].learnKana(kanaKnown)
@@ -154,7 +154,7 @@ class Words:
     def _learnPartHelp(self, ERs, kanjiKnown, kanaKnown):
         if (len(ERs) == 1):
             (expression, reading) = ERs[0]
-            self.learn(expression, reading, kanjiKnown, kanaKnown)
+            self._learnFull(expression, reading, kanjiKnown, kanaKnown)
         else:
             resultER = None
             candidates = 0
@@ -166,7 +166,7 @@ class Words:
                     candidates += 1
             if resultER is not None and candidates == 1:
                 (expression, reading) = resultER
-                self.learn(expression, reading, kanjiKnown, kanaKnown)
+                self._learnFull(expression, reading, kanjiKnown, kanaKnown)
     
     def learnPart(self, text, known):
         if self._dic.has_key(text):
@@ -184,7 +184,7 @@ class Words:
         if expression == reading or reading == "":
             self.learnPart(expression, known)
         else:
-            self.learn(expression, reading, known, known)
+            self._learnFull(expression, reading, known, known)
     
     def iterGen(self):
         dic = self._dic
