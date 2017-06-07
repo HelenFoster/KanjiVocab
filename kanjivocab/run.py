@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
+import collections
 from aqt import mw
 from aqt.utils import *
 
@@ -95,14 +96,10 @@ def _updateKanjiVocab():
     
     
     mw.progress.update(label="Marking known words")
-    noteCountVocab = 0
-    noteCountText = 0
+    wordCounts = {True: collections.Counter(), False: collections.Counter()} #[isVocab][metric]
+    notFound = {True: collections.Counter(), False: collections.Counter()} #[isVocab][expression]
     for (isVocab, model, expressionFieldName, readingFieldName) in toAnalyze:
         nids = mw.col.findNotes("mid:" + str(model["id"]))
-        if isVocab:
-            noteCountVocab += len(nids)
-        else:
-            noteCountText += len(nids)
         for nid in nids:
             note = mw.col.getNote(nid)
             noteActive = False
@@ -113,23 +110,38 @@ def _updateKanjiVocab():
                 noteActive = noteActive or cardActive
                 noteMature = noteMature or cardMature
             if noteActive:
-                #move note counts here?
+                wordCounts[isVocab]["cells"] += 1
                 known = kanjivocab.core.KNOWN_KNOWN
                 if noteMature:
                     known = kanjivocab.core.KNOWN_MATURE
                 if isVocab:
+                    expression = note[expressionFieldName]
                     if readingFieldName is None:
-                        words.learnPart(note[expressionFieldName], known)
+                        learned = words.learnPart(expression, known)
                     else:
-                        words.learnVocab(note[expressionFieldName], note[readingFieldName], known)
+                        learned = words.learnVocab(expression, note[readingFieldName], known)
+                    learned = [(expression, learned)]
                 else:
-                    for wordItem in splitter.analyze(note[expressionFieldName]):
-                        words.learnPart(wordItem, known)
+                    wordItems = set(splitter.analyze(note[expressionFieldName]))
+                    learned = [(wordItem, words.learnPart(wordItem, known)) for wordItem in wordItems]
+                for (expression, wordLearned) in learned:
+                    wordCounts[isVocab][wordLearned] += 1
+                    if wordLearned == kanjivocab.core.LEARNED_NOTFOUND:
+                        notFound[isVocab][expression] += 1
     
-    if noteCountVocab > 0:
-        result += "Marked known words from %d vocab notes\n" % noteCountVocab
-    if noteCountText > 0:
-        result += "Marked known words from %d text cells\n" % noteCountText
+    
+    def wordStats(msg1, isVocab):
+        wc = wordCounts[isVocab]
+        msg = msg1 % (wc[kanjivocab.core.LEARNED_YES], wc["cells"])
+        msg2 = " (%d duplicates, %d with >1 possible word, %d not found)\n"
+        msg += msg2 % (wc[kanjivocab.core.LEARNED_ALREADY],
+                       wc[kanjivocab.core.LEARNED_CONFUSE],
+                       len(notFound[isVocab]))  #LEARNED_NOTFOUND is way too big
+        return msg
+    if conf["scanVocab"]:
+        result += wordStats("Marked %d known words from %d vocab notes\n", True)
+    if conf["scanText"]:
+        result += wordStats("Marked %d known words from %d text cells\n", False)
     
     
     mw.progress.update(label="Creating questions")
