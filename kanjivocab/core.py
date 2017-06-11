@@ -64,9 +64,10 @@ class WordInfo:
         self.kanaKnown = min(self.kanaKnown, known)
         return result
     def _learning(self, known):
-        result = self.kanjiKnown == KNOWN_NOT
-        result = result and self.kanaKnown == KNOWN_NOT
-        return result and known != KNOWN_NOT
+        didntKnowKanji = self.kanjiKnown == KNOWN_NOT
+        didntKnowKana = self.kanaKnown == KNOWN_NOT
+        knowOneNow = known != KNOWN_NOT
+        return didntKnowKanji and didntKnowKana and knowOneNow
 
 
 
@@ -160,10 +161,10 @@ class Words:
     
     def _learnFull(self, expression, reading, kanjiKnown, kanaKnown):
         if self.contains(expression, reading):
-            result1 = self._dic[expression][reading].learnKanji(kanjiKnown)
-            result2 = self._dic[expression][reading].learnKana(kanaKnown)
-            result = result1 or result2
-            return LEARNED_YES if result else LEARNED_ALREADY
+            justLearnedKanji = self._dic[expression][reading].learnKanji(kanjiKnown)
+            justLearnedKana  = self._dic[expression][reading].learnKana(kanaKnown)
+            justLearned = justLearnedKanji or justLearnedKana
+            return LEARNED_YES if justLearned else LEARNED_ALREADY
         else:
             self.add(expression, reading, WordInfo(kanjiKnown=kanjiKnown, kanaKnown=kanaKnown))
             return LEARNED_YES
@@ -173,16 +174,16 @@ class Words:
             (expression, reading) = ERs[0]
             return self._learnFull(expression, reading, kanjiKnown, kanaKnown)
         else:
-            resultER = None
+            selectedER = None
             candidates = 0
             for (expression, reading) in ERs:
                 wordInfo = self._dic[expression][reading]
                 if self._config["learnMatchLikely"](wordInfo):
-                    resultER = (expression, reading)
+                    selectedER = (expression, reading)
                 if self._config["learnMatchLikely"](wordInfo) or self._config["learnMatchConfuse"](wordInfo):
                     candidates += 1
-            if resultER is not None and candidates == 1:
-                (expression, reading) = resultER
+            if selectedER is not None and candidates == 1:
+                (expression, reading) = selectedER
                 return self._learnFull(expression, reading, kanjiKnown, kanaKnown)
             else:
                 return LEARNED_CONFUSE
