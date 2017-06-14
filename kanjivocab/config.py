@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015  Helen Foster
+# Copyright (C) 2015,2016,2017  Helen Foster
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
@@ -21,13 +21,13 @@ config["noteType"] = u"Heisig"
 config["fieldKanji"] = u"Kanji"
 
 #Words with masked kanji on the front of the card. FIELD WILL BE OVERWRITTEN.
-config["fieldVocabQuestion"] = u"VocabQuestion"
+config["fieldVocabQuestion"] = u"KanjiVocab question"
 
 #Answers to the above questions on the back of the card. FIELD WILL BE OVERWRITTEN. 
-config["fieldVocabResponse"] = u"VocabResponse"
+config["fieldVocabResponse"] = u"KanjiVocab answer"
 
 #Extra vocab on the back of the card. FIELD WILL BE OVERWRITTEN.
-config["fieldVocabExtra"] = u"VocabExtra"
+config["fieldVocabExtra"] = u"KanjiVocab extra"
 
 #Vocab cards to scan for known words,
 #as a list of (noteType, expressionFieldName, readingFieldName).
@@ -50,6 +50,7 @@ config["numQuestionsExtra"] = 4
 config["questionChar"] = u"〇"
 
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
+config["pathConfigFile"] = os.path.normpath(os.path.join(mw.col.media.dir(), "../KanjiVocab.json"))
 
 #Using '@' to split results.
 config["mecabArgs"] = ['--node-format="%m@%f[6]@"']

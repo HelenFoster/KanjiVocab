@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015  Helen Foster
+# Copyright (C) 2015,2016,2017  Helen Foster
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
-import collections
+import os, collections
 from aqt import mw
 from aqt.utils import *
 
 
 def updateKanjiVocab():
-    mw.progress.start(immediate=True)
     output = _updateKanjiVocab()
-    mw.progress.finish()
-    showText(output)
+    if output:
+        showText(output)
 
 
 def _updateKanjiVocab():
@@ -22,9 +21,20 @@ def _updateKanjiVocab():
     reload(kanjivocab.config)
     import kanjivocab.splitter
     reload(kanjivocab.splitter)
+    import kanjivocab.gui
+    reload(kanjivocab.gui)
     
     conf = kanjivocab.config.config
     output = ""
+    
+    
+    if os.path.exists(conf["pathConfigFile"]):
+        output += "Found config file (but it doesn't do anything yet)\n"
+        settingsGui = kanjivocab.gui.Settings(mw)
+        result = settingsGui.exec_()
+        if result != QDialog.Accepted:
+            return ""
+    
     
     model = mw.col.models.byName(conf["noteType"])
     if model is None:
@@ -87,7 +97,7 @@ def _updateKanjiVocab():
         output += "Warning: can't find any fields to analyze: please edit config.py if you want them\n"
     
     
-    mw.progress.update(label="Loading dictionary")
+    mw.progress.start(label="Loading dictionary", immediate=True)
     try:
         words = kanjivocab.core.Words(conf)
     except IOError:
@@ -165,6 +175,7 @@ def _updateKanjiVocab():
             note[conf["fieldVocabExtra"]] = fieldX
         note.flush()
     
+    mw.progress.finish()
     return output + "Finished\n"
     
 
