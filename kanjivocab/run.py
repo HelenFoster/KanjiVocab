@@ -30,7 +30,7 @@ def _updateKanjiVocab():
     
     if os.path.exists(conf["pathConfigFile"]):
         output += "Found config file (but it doesn't do anything yet)\n"
-        settingsGui = kanjivocab.gui.Settings(mw)
+        settingsGui = kanjivocab.gui.Settings(mw, conf)
         result = settingsGui.exec_()
         if result != QDialog.Accepted:
             return ""
