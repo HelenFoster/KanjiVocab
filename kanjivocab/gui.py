@@ -8,6 +8,14 @@ from PyQt4.QtGui import *
 from copy import deepcopy
 
 
+class ComboBoxKV(QComboBox):
+    def setCurrentByText(self, text, defaultIndex=0):
+        index = self.findText(text)
+        if index == -1:
+            index = defaultIndex
+        self.setCurrentIndex(index)
+
+
 class Settings(QDialog):
 
     def __init__(self, mw, conf):
@@ -50,8 +58,8 @@ class Settings(QDialog):
         self.layoutUpdate.addWidget(
             QLabel(text=conf["fieldVocabExtra"]), 8, 0)
         
-        self.pickNoteType = QComboBox()
-        self.pickFieldKanji = QComboBox()
+        self.pickNoteType = ComboBoxKV()
+        self.pickFieldKanji = ComboBoxKV()
         self.pickNumQuestions = QSpinBox()
         self.pickNumExtra = QSpinBox()
         self.pickAvoidAmbig = QCheckBox()
@@ -77,10 +85,10 @@ class Settings(QDialog):
         self.layoutScan.addWidget(QLabel(text="Reading field"), 0, 3)
         
         numScans = 6
-        self.pickScanNoteTypes = [QComboBox() for i in range(numScans)]
-        self.pickScanTypes = [QComboBox() for i in range(numScans)]
-        self.pickScanExpressions = [QComboBox() for i in range(numScans)]
-        self.pickScanReadings = [QComboBox() for i in range(numScans)]
+        self.pickScanNoteTypes = [ComboBoxKV() for i in range(numScans)]
+        self.pickScanTypes = [ComboBoxKV() for i in range(numScans)]
+        self.pickScanExpressions = [ComboBoxKV() for i in range(numScans)]
+        self.pickScanReadings = [ComboBoxKV() for i in range(numScans)]
         self.pickScanColumns = [
             self.pickScanNoteTypes,
             self.pickScanTypes,
@@ -97,4 +105,34 @@ class Settings(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         self.layoutOuter.addWidget(buttons)
+        
+        
+        noteTypeNames = self.mw.col.models.allNames()
+        for box in [self.pickNoteType] + self.pickScanNoteTypes:
+            box.addItem("")
+            for noteTypeName in noteTypeNames:
+                box.addItem(noteTypeName)
+        
+        def pickNoteTypeChanged(index):
+            self.changedNoteType()
+        self.pickNoteType.currentIndexChanged.connect(pickNoteTypeChanged)
+        self.pickNoteType.setCurrentByText(self.conf.get("noteType", ""))
+        
+        def pickFieldKanjiChanged(index):
+            text = self.pickFieldKanji.currentText()
+            self.conf["fieldKanji"] = text
+        self.pickFieldKanji.currentIndexChanged.connect(pickFieldKanjiChanged)
+        self.pickFieldKanji.setCurrentByText(self.conf.get("fieldKanji", ""))
+    
+    
+    def changedNoteType(self):
+        text = self.pickNoteType.currentText()
+        self.conf["noteType"] = text
+        model = self.mw.col.models.byName(text)
+        if model is None:
+            fieldNames = []  #shouldn't happen with GUI
+        else:
+            fieldNames = [fld["name"] for fld in model["flds"]]
+        self.pickFieldKanji.clear()
+        self.pickFieldKanji.addItems(fieldNames)
 
