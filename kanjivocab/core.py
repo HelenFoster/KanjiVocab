@@ -266,7 +266,7 @@ class Questions:
     
     def getAnkiFields(self, kanji):
         numQs = self._config["numQuestions"]
-        numQsX = self._config["numQuestionsExtra"]
+        numQsX = self._config["numExtra"]
         qFilter = self._config["questionFilter"]
         qFilterX = self._config["questionFilterExtra"]
         qKey = self._config["questionKey"]

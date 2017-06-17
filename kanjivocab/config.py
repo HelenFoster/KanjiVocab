@@ -46,7 +46,7 @@ config["scanText"] = [
 
 
 config["numQuestions"] = 4
-config["numQuestionsExtra"] = 4
+config["numExtra"] = 4
 config["avoidAmbig"] = True
 config["numScans"] = 6
 config["questionChar"] = u"〇"

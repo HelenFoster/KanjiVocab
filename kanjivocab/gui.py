@@ -138,9 +138,9 @@ class Settings(QDialog):
         self.pickNumQuestions.setValue(self.conf.get("numQuestions", 4))
         
         def pickNumExtraChanged(value):
-            self.conf["numQuestionsExtra"] = value
+            self.conf["numExtra"] = value
         self.pickNumExtra.valueChanged.connect(pickNumExtraChanged)
-        self.pickNumExtra.setValue(self.conf.get("numQuestionsExtra", 4))
+        self.pickNumExtra.setValue(self.conf.get("numExtra", 4))
         
         def pickAvoidAmbigChanged(state):
             self.conf["avoidAmbig"] = self.pickAvoidAmbig.isChecked()
