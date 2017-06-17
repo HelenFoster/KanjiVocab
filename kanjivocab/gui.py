@@ -18,11 +18,12 @@ class ComboBoxKV(QComboBox):
 
 class Settings(QDialog):
 
-    def __init__(self, mw, conf):
+    def __init__(self, mw, conf, numScans):
 
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.conf = deepcopy(conf)
+        self.numScans = numScans
 
         self.resize(600, 400)
         self.setWindowTitle("Useless dialog")
@@ -84,7 +85,6 @@ class Settings(QDialog):
         self.layoutScan.addWidget(QLabel(text="Expression field"), 0, 2)
         self.layoutScan.addWidget(QLabel(text="Reading field"), 0, 3)
         
-        numScans = 6
         self.pickScanNoteTypes = [ComboBoxKV() for i in range(numScans)]
         self.pickScanTypes = [ComboBoxKV() for i in range(numScans)]
         self.pickScanExpressions = [ComboBoxKV() for i in range(numScans)]
@@ -113,8 +113,14 @@ class Settings(QDialog):
             for noteTypeName in noteTypeNames:
                 box.addItem(noteTypeName)
         
+        for box in self.pickScanTypes:
+            box.addItem("vocab")
+            box.addItem("text")
+        
         def pickNoteTypeChanged(index):
-            self.changedNoteType()
+            text = self.pickNoteType.currentText()
+            self.conf["noteType"] = text
+            self.refillFieldBox(self.pickFieldKanji, text)
         self.pickNoteType.currentIndexChanged.connect(pickNoteTypeChanged)
         self.pickNoteType.setCurrentByText(self.conf.get("noteType", ""))
         
@@ -123,16 +129,30 @@ class Settings(QDialog):
             self.conf["fieldKanji"] = text
         self.pickFieldKanji.currentIndexChanged.connect(pickFieldKanjiChanged)
         self.pickFieldKanji.setCurrentByText(self.conf.get("fieldKanji", ""))
+        
+        def pickNumQuestionsChanged(value):
+            self.conf["numQuestions"] = value
+        self.pickNumQuestions.valueChanged.connect(pickNumQuestionsChanged)
+        self.pickNumQuestions.setValue(self.conf.get("numQuestions", 4))
+        
+        def pickNumExtraChanged(value):
+            self.conf["numQuestionsExtra"] = value
+        self.pickNumExtra.valueChanged.connect(pickNumExtraChanged)
+        self.pickNumExtra.setValue(self.conf.get("numQuestionsExtra", 4))
+        
+        def pickAvoidAmbigChanged(state):
+            self.conf["avoidAmbig"] = self.pickAvoidAmbig.isChecked()
+        self.pickAvoidAmbig.stateChanged.connect(pickAvoidAmbigChanged)
+        self.pickAvoidAmbig.setChecked(self.conf.get("avoidAmbig", True))
+
     
-    
-    def changedNoteType(self):
-        text = self.pickNoteType.currentText()
-        self.conf["noteType"] = text
-        model = self.mw.col.models.byName(text)
+    def refillFieldBox(self, pickField, noteTypeName):
+        model = self.mw.col.models.byName(noteTypeName)
         if model is None:
             fieldNames = []  #shouldn't happen with GUI
         else:
             fieldNames = [fld["name"] for fld in model["flds"]]
-        self.pickFieldKanji.clear()
-        self.pickFieldKanji.addItems(fieldNames)
+        pickField.clear()
+        pickField.addItem("")
+        pickField.addItems(fieldNames)
 
