@@ -27,16 +27,16 @@ Copy KanjiVocab.py and the kanjivocab directory into the Anki addons directory. 
 Add fields to your kanji deck for the new information. By default, the names are:
 
 * "KanjiVocab question" for the words with masked kanji (put this on the front of the card);
-* "KanjiVocab answer" for the answers to the questions (put this on the back of the card, ideally so that it appears in the same place as the question);
+* "KanjiVocab answer" for the answers to the questions (put this on the back of the card, ideally so that it appears in the same place as the question field);
 * "KanjiVocab extra" for words which would have more than one likely answer (put this on the back of the card).
 
-The above fields contain furigana, so add them using {{furigana:VocabQuestion}} etc.
+The above fields contain furigana, so add them using {{furigana:KanjiVocab question}} etc.
 
 Add CSS to your kanji deck to style the words as you like. There is an example in cards_example.css (so just copy that unless you have a different idea). Each word will have exactly one of the following classes:
 
 * "kv_unique" for words with only one possible answer;
 * "kv_likely" for words with only one likely answer;
-* "kv_confuse" for words with more than one likely answer (by default these only appear in VocabExtra).
+* "kv_confuse" for words with more than one likely answer (by default these only appear as "extra" words).
 
 Also, each word will have exactly one of the following classes (with the ones listed first being higher priority):
 
