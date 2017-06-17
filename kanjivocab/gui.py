@@ -18,12 +18,12 @@ class ComboBoxKV(QComboBox):
 
 class Settings(QDialog):
 
-    def __init__(self, mw, conf, numScans):
+    def __init__(self, mw, conf):
 
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.conf = deepcopy(conf)
-        self.numScans = numScans
+        self.foundFieldToUpdate = False
 
         self.resize(600, 400)
         self.setWindowTitle("Useless dialog")
@@ -64,9 +64,9 @@ class Settings(QDialog):
         self.pickNumQuestions = QSpinBox()
         self.pickNumExtra = QSpinBox()
         self.pickAvoidAmbig = QCheckBox()
-        self.foundFieldQuestion = QLabel(text="test1")
-        self.foundFieldAnswer = QLabel(text="test2")
-        self.foundFieldExtra = QLabel(text="test3")
+        self.foundFieldQuestion = QLabel()
+        self.foundFieldAnswer = QLabel()
+        self.foundFieldExtra = QLabel()
         
         self.layoutUpdate.addWidget(self.pickNoteType, 0, 1)
         self.layoutUpdate.addWidget(self.pickFieldKanji, 1, 1)
@@ -85,6 +85,7 @@ class Settings(QDialog):
         self.layoutScan.addWidget(QLabel(text="Expression field"), 0, 2)
         self.layoutScan.addWidget(QLabel(text="Reading field"), 0, 3)
         
+        numScans = self.conf["numScans"]
         self.pickScanNoteTypes = [ComboBoxKV() for i in range(numScans)]
         self.pickScanTypes = [ComboBoxKV() for i in range(numScans)]
         self.pickScanExpressions = [ComboBoxKV() for i in range(numScans)]
@@ -121,6 +122,7 @@ class Settings(QDialog):
             text = self.pickNoteType.currentText()
             self.conf["noteType"] = text
             self.refillFieldBox(self.pickFieldKanji, text)
+            self.updateFieldsToUpdate(text)
         self.pickNoteType.currentIndexChanged.connect(pickNoteTypeChanged)
         self.pickNoteType.setCurrentByText(self.conf.get("noteType", ""))
         
@@ -145,14 +147,31 @@ class Settings(QDialog):
         self.pickAvoidAmbig.stateChanged.connect(pickAvoidAmbigChanged)
         self.pickAvoidAmbig.setChecked(self.conf.get("avoidAmbig", True))
 
-    
-    def refillFieldBox(self, pickField, noteTypeName):
+    def lookupFieldNames(self, noteTypeName):
         model = self.mw.col.models.byName(noteTypeName)
         if model is None:
-            fieldNames = []  #shouldn't happen with GUI
+            fieldNames = []  #happens if no model is selected
         else:
             fieldNames = [fld["name"] for fld in model["flds"]]
+        return fieldNames
+
+    def refillFieldBox(self, pickField, noteTypeName):
+        fieldNames = self.lookupFieldNames(noteTypeName)
         pickField.clear()
         pickField.addItem("")
         pickField.addItems(fieldNames)
+
+    def updateFieldsToUpdate(self, noteTypeName):
+        fieldNames = self.lookupFieldNames(noteTypeName)
+        self.foundFieldToUpdate = False
+        def updateLine(widget, fieldName):
+            if fieldName in fieldNames:
+                text = "found"
+                self.foundFieldToUpdate = True
+            else:
+                text = "not found"
+            widget.setText(text)
+        updateLine(self.foundFieldQuestion, self.conf["fieldVocabQuestion"])
+        updateLine(self.foundFieldAnswer, self.conf["fieldVocabResponse"])
+        updateLine(self.foundFieldExtra, self.conf["fieldVocabExtra"])
 

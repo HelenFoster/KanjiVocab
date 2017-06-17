@@ -48,6 +48,7 @@ config["scanText"] = [
 config["numQuestions"] = 4
 config["numQuestionsExtra"] = 4
 config["avoidAmbig"] = True
+config["numScans"] = 6
 config["questionChar"] = u"〇"
 
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
