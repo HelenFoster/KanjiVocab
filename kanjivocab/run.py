@@ -68,18 +68,21 @@ def _updateKanjiVocab():
         return output + "No fields to update: please edit config.py\n"
     
     
-    if conf["scanText"]:
+    if any([d["scanType"] == "text" for d in conf["scan"]]):
         try:
             splitter = kanjivocab.splitter.Splitter(conf["mecabArgs"])
+            canScanText = True
         except Exception as e:
             output += e.message + "\n"
             output += "Warning: Can't do sentence scan: check Japanese Support is installed and working properly\n"
-            conf["scanText"] = []
+            canScanText = False
     
-    toAnalyze1 = [(True,) + x for x in conf["scanVocab"]]
-    toAnalyze1 += [(False,) + x + (None,) for x in conf["scanText"]]
     toAnalyze = []
-    for (isVocab, modelName, expressionFieldName, readingFieldName) in toAnalyze1:
+    for scanDic in conf["scan"]:
+        isVocab = (scanDic["scanType"] == "vocab")
+        modelName = scanDic["noteType"]
+        expressionFieldName = scanDic["expression"]
+        readingFieldName = scanDic["reading"]
         model = mw.col.models.byName(modelName)
         if model is None:
             output += "Warning: can't find model %s to analyze: please edit config.py to fix\n" % modelName
@@ -91,7 +94,8 @@ def _updateKanjiVocab():
         if readingFieldName is not None and readingFieldName not in fieldNames:
             output += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (readingFieldName, modelName)
             continue
-        toAnalyze.append((isVocab, model, expressionFieldName, readingFieldName)) #note: model not modelName
+        if isVocab or canScanText:
+            toAnalyze.append((isVocab, model, expressionFieldName, readingFieldName)) #note: model not modelName
     
     if not toAnalyze:
         output += "Warning: can't find any fields to analyze: please edit config.py if you want them\n"
@@ -148,9 +152,9 @@ def _updateKanjiVocab():
                        wc[kanjivocab.core.LEARNED_CONFUSE],
                        len(notFound[isVocab]))  #LEARNED_NOTFOUND is way too big
         return msg
-    if conf["scanVocab"]:
+    if wordCounts[True]["cells"] != 0:
         output += wordStats("Marked %d known words from %d vocab notes\n", True)
-    if conf["scanText"]:
+    if wordCounts[False]["cells"] != 0:
         output += wordStats("Marked %d known words from %d text cells\n", False)
     
     

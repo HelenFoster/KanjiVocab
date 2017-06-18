@@ -29,18 +29,28 @@ config["fieldVocabResponse"] = u"KanjiVocab answer"
 #Extra vocab on the back of the card. FIELD WILL BE OVERWRITTEN.
 config["fieldVocabExtra"] = u"KanjiVocab extra"
 
-#Vocab cards to scan for known words,
-#as a list of (noteType, expressionFieldName, readingFieldName).
-#If you don't have a reading field, set readingFieldName to None.
-config["scanVocab"] = [
-    ("vocab", "expression", "kana"),
-]
 
-#Other fields to scan for known words, split with MeCab,
-#as a list of (noteType, fieldName).
+
+#Cards to scan for known words.
 #A note type can appear more than once, with a different field.
-config["scanText"] = [
-    ("Nayrs Japanese Core5000", "Expression"),
+#"scanType" can be "vocab" or "text".
+#The "vocab" scan considers the expression and reading as-is.
+#  If you don't have a reading field, set "reading" to None.
+#The "text" scan splits the expression with MeCab.
+#  ("reading" should be None)
+config["scan"] = [
+    {
+        "noteType": "vocab",
+        "scanType": "vocab",
+        "expression": "expression",
+        "reading": "kana"
+    },
+    {
+        "noteType": "Nayrs Japanese Core5000",
+        "scanType": "text",
+        "expression": "Expression",
+        "reading": None
+    }
 ]
 
 
@@ -51,6 +61,7 @@ config["avoidAmbig"] = True
 config["numScans"] = 6
 config["questionChar"] = u"〇"
 
+config["allowOverride"] = ["noteType", "fieldKanji", "numQuestions", "numExtra", "avoidAmbig", "scan"]
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
 config["pathConfigFile"] = os.path.normpath(os.path.join(mw.col.media.dir(), "../KanjiVocab.json"))
 
