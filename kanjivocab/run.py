@@ -3,7 +3,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
-import os, collections
+import os, collections, json
+from copy import deepcopy
 from aqt import mw
 from aqt.utils import *
 
@@ -24,16 +25,44 @@ def _updateKanjiVocab():
     import kanjivocab.gui
     reload(kanjivocab.gui)
     
-    conf = kanjivocab.config.config
+    conf = deepcopy(kanjivocab.config.config)
     output = ""
     
     
     if os.path.exists(conf["pathConfigFile"]):
-        output += "Found config file (but it doesn't do anything yet)\n"
+        try:
+            with open(conf["pathConfigFile"]) as fp:
+                fileConf = json.load(fp)
+            output += "Loaded config file\n"
+        except IOError as e:
+            output += "Can't read config file\n"
+            return output
+        except ValueError as e:
+            output += "Invalid JSON in config file\n"
+            return output
+        for key in conf["allowOverride"]:
+            if fileConf.has_key(key):
+                conf[key] = fileConf[key]
+        
+        
+        #move GUI and file saving out of the "if" when GUI is done
+        
         settingsGui = kanjivocab.gui.Settings(mw, conf)
         result = settingsGui.exec_()
         if result != QDialog.Accepted:
             return ""
+        
+        #save settings
+        conf = settingsGui.conf
+        fileConf = {}
+        for key in conf["allowOverride"]:
+            fileConf[key] = conf[key]
+        try:
+            with open(conf["pathConfigFile"], "w") as fp:
+                json.dump(fileConf, fp)
+            output += "Wrote config file\n"
+        except IOError as e:
+            output += "Warning: can't write config file\n"
     
     
     model = mw.col.models.byName(conf["noteType"])

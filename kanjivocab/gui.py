@@ -26,7 +26,7 @@ class Settings(QDialog):
         self.foundFieldToUpdate = False
 
         self.resize(600, 400)
-        self.setWindowTitle("Useless dialog")
+        self.setWindowTitle("KanjiVocab settings")
         
         self.layoutOuter = QVBoxLayout(self)
         self.tabs = QTabWidget(self)
