@@ -193,6 +193,7 @@ def _updateKanjiVocab():
 
     
     mw.progress.update(label="Updating notes")
+    mw.checkpoint("KanjiVocab")  #set undo checkpoint (about to start changing stuff here)
     
     nids = mw.col.findNotes("mid:" + str(kanjiModelID))
     output += "%d kanji notes to be updated\n" % len(nids)

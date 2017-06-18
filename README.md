@@ -46,5 +46,5 @@ Also, each word will have exactly one of the following classes (with the ones li
 
 Since they are separated like this, it makes sense to use text styles for one set and background colour for the other.
 
-Restart Anki, and "Kanji Vocab Recalc" should appear on the Tools menu. When run, it overwrites the specified fields with the automatically-selected words.
+Restart Anki, and "KanjiVocab Recalc" should appear on the Tools menu. When run, it overwrites the specified fields with the automatically-selected words.
 
