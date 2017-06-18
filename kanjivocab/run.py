@@ -45,11 +45,11 @@ def _updateKanjiVocab():
                 conf[key] = fileConf[key]
         
         
-        #move GUI and file saving out of the "if" when GUI is done
+        #move rest of this block out of the "if" when GUI is done
         
         settingsGui = kanjivocab.gui.Settings(mw, conf)
         result = settingsGui.exec_()
-        if result != QDialog.Accepted:
+        if result == QDialog.Rejected:
             return ""
         
         #save settings
@@ -63,6 +63,9 @@ def _updateKanjiVocab():
             output += "Wrote config file\n"
         except IOError as e:
             output += "Warning: can't write config file\n"
+        
+        if not conf["run"]:
+            return ""
     
     
     model = mw.col.models.byName(conf["noteType"])

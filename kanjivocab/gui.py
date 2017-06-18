@@ -100,11 +100,21 @@ class Settings(QDialog):
                 self.layoutScan.addWidget(self.pickScanColumns[col][row], row + 1, col)
         
         
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
-            Qt.Horizontal, self)
-        buttons.accepted.connect(self.accept)
-        buttons.rejected.connect(self.reject)
+        buttons = QDialogButtonBox()
+        buttons.addButton(QDialogButtonBox.Cancel)
+        buttons.addButton(QDialogButtonBox.Save)
+        buttons.addButton("Run", QDialogButtonBox.YesRole)
+        self.conf["run"] = False
+        def buttonClicked(button):
+            role = buttons.buttonRole(button)
+            if role == QDialogButtonBox.YesRole:
+                self.conf["run"] = True
+                self.accept()
+            elif role == QDialogButtonBox.AcceptRole:
+                self.accept()
+            else:
+                self.reject()
+        buttons.clicked.connect(buttonClicked)
         self.layoutOuter.addWidget(buttons)
         
         
