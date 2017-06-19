@@ -9,6 +9,12 @@ from copy import deepcopy
 
 
 class ComboBoxKV(QComboBox):
+    
+    def setup(self, dic, key, callback):
+        self.setCurrentByText(dic.get(key, ""))
+        callback(self.currentText())
+        self.currentIndexChanged[str].connect(callback)
+        
     def setCurrentByText(self, text, defaultIndex=0):
         index = self.findText(text)
         if index == -1:
@@ -119,8 +125,9 @@ class Settings(QDialog):
         
         
         noteTypeNames = self.mw.col.models.allNames()
-        for box in [self.pickNoteType] + self.pickScanNoteTypes:
+        for box in self.pickScanNoteTypes:
             box.addItem("")
+        for box in [self.pickNoteType] + self.pickScanNoteTypes:
             for noteTypeName in noteTypeNames:
                 box.addItem(noteTypeName)
         
@@ -128,34 +135,59 @@ class Settings(QDialog):
             box.addItem("vocab")
             box.addItem("text")
         
-        def pickNoteTypeChanged(index):
-            text = self.pickNoteType.currentText()
+        def pickNoteTypeChanged(text):
             self.conf["noteType"] = text
             self.refillFieldBox(self.pickFieldKanji, text)
             self.updateFieldsToUpdate(text)
-        self.pickNoteType.currentIndexChanged.connect(pickNoteTypeChanged)
-        self.pickNoteType.setCurrentByText(self.conf.get("noteType", ""))
+        self.pickNoteType.setup(self.conf, "noteType", pickNoteTypeChanged)
         
-        def pickFieldKanjiChanged(index):
-            text = self.pickFieldKanji.currentText()
+        def pickFieldKanjiChanged(text):
             self.conf["fieldKanji"] = text
-        self.pickFieldKanji.currentIndexChanged.connect(pickFieldKanjiChanged)
-        self.pickFieldKanji.setCurrentByText(self.conf.get("fieldKanji", ""))
+        self.pickFieldKanji.setup(self.conf, "fieldKanji", pickFieldKanjiChanged)
         
         def pickNumQuestionsChanged(value):
             self.conf["numQuestions"] = value
-        self.pickNumQuestions.valueChanged.connect(pickNumQuestionsChanged)
         self.pickNumQuestions.setValue(self.conf.get("numQuestions", 4))
+        pickNumQuestionsChanged(self.pickNumQuestions.value())
+        self.pickNumQuestions.valueChanged.connect(pickNumQuestionsChanged)
         
         def pickNumExtraChanged(value):
             self.conf["numExtra"] = value
-        self.pickNumExtra.valueChanged.connect(pickNumExtraChanged)
         self.pickNumExtra.setValue(self.conf.get("numExtra", 4))
+        pickNumExtraChanged(self.pickNumExtra.value())
+        self.pickNumExtra.valueChanged.connect(pickNumExtraChanged)
         
         def pickAvoidAmbigChanged(state):
             self.conf["avoidAmbig"] = self.pickAvoidAmbig.isChecked()
-        self.pickAvoidAmbig.stateChanged.connect(pickAvoidAmbigChanged)
         self.pickAvoidAmbig.setChecked(self.conf.get("avoidAmbig", True))
+        pickAvoidAmbigChanged(None)
+        self.pickAvoidAmbig.stateChanged.connect(pickAvoidAmbigChanged)
+        
+        scanConfs = self.conf.get("scan", [])
+        scanConfs = scanConfs[:numScans]  #discard any scans we can't see
+        self.conf["scan"] = scanConfs
+        for row in range(numScans):
+            if len(scanConfs) <= row:
+                scanConfs.append({})
+            
+            def pickScanNoteTypeChanged(text, r=row):
+                scanConfs[r]["noteType"] = text
+                self.recalcScanFields(r)
+            self.pickScanNoteTypes[row].setup(scanConfs[row], "noteType", pickScanNoteTypeChanged)
+            
+            def pickScanTypeChanged(text, r=row):
+                scanConfs[r]["scanType"] = text
+                self.recalcScanFields(r)
+            self.pickScanTypes[row].setup(scanConfs[row], "scanType", pickScanTypeChanged)
+            
+            def pickScanExpressionChanged(text, r=row):
+                scanConfs[r]["expression"] = text
+            self.pickScanExpressions[row].setup(scanConfs[row], "expression", pickScanExpressionChanged)
+            
+            def pickScanReadingChanged(text, r=row):
+                scanConfs[r]["reading"] = text
+            self.pickScanReadings[row].setup(scanConfs[row], "reading", pickScanReadingChanged)
+    
 
     def lookupFieldNames(self, noteTypeName):
         model = self.mw.col.models.byName(noteTypeName)
@@ -165,11 +197,19 @@ class Settings(QDialog):
             fieldNames = [fld["name"] for fld in model["flds"]]
         return fieldNames
 
-    def refillFieldBox(self, pickField, noteTypeName):
+    def refillFieldBox(self, pickField, noteTypeName, optional=False):
         fieldNames = self.lookupFieldNames(noteTypeName)
         pickField.clear()
-        pickField.addItem("")
+        if optional and fieldNames != []:
+            pickField.addItem("")
         pickField.addItems(fieldNames)
+    
+    def recalcScanFields(self, row):
+        noteTypeName = self.pickScanNoteTypes[row].currentText()
+        self.refillFieldBox(self.pickScanExpressions[row], noteTypeName)
+        self.pickScanReadings[row].clear()
+        if self.pickScanTypes[row].currentText() == "vocab":
+            self.refillFieldBox(self.pickScanReadings[row], noteTypeName, optional=True)
 
     def updateFieldsToUpdate(self, noteTypeName):
         fieldNames = self.lookupFieldNames(noteTypeName)

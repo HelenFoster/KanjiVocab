@@ -35,9 +35,9 @@ config["fieldVocabExtra"] = u"KanjiVocab extra"
 #A note type can appear more than once, with a different field.
 #"scanType" can be "vocab" or "text".
 #The "vocab" scan considers the expression and reading as-is.
-#  If you don't have a reading field, set "reading" to None.
+#  If you don't have a reading field, set "reading" to "" (empty string).
 #The "text" scan splits the expression with MeCab.
-#  ("reading" should be None)
+#  ("reading" should be an empty string)
 config["scan"] = [
     {
         "noteType": "vocab",
@@ -49,7 +49,7 @@ config["scan"] = [
         "noteType": "Nayrs Japanese Core5000",
         "scanType": "text",
         "expression": "Expression",
-        "reading": None
+        "reading": ""
     }
 ]
 

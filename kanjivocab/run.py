@@ -100,6 +100,8 @@ def _updateKanjiVocab():
         return output + "No fields to update: please edit config.py\n"
     
     
+    conf["scan"] = [d for d in conf["scan"] if d.get("noteType", "") != ""] #skip empty scan rows
+    
     if any([d["scanType"] == "text" for d in conf["scan"]]):
         try:
             splitter = kanjivocab.splitter.Splitter(conf["mecabArgs"])
@@ -123,7 +125,7 @@ def _updateKanjiVocab():
         if expressionFieldName not in fieldNames:
             output += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (expressionFieldName, modelName)
             continue
-        if readingFieldName is not None and readingFieldName not in fieldNames:
+        if readingFieldName != "" and readingFieldName not in fieldNames:
             output += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (readingFieldName, modelName)
             continue
         if isVocab or canScanText:
@@ -162,7 +164,7 @@ def _updateKanjiVocab():
                     known = kanjivocab.core.KNOWN_MATURE
                 if isVocab:
                     expression = note[expressionFieldName]
-                    if readingFieldName is None:
+                    if readingFieldName == "":
                         learned = words.learnPart(expression, known)
                     else:
                         learned = words.learnVocab(expression, note[readingFieldName], known)
