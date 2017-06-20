@@ -41,17 +41,16 @@ def _updateKanjiVocab():
                 fileConf = json.load(fp)
             output += "Loaded config file\n"
         except IOError as e:
-            output += "Can't read config file\n"
-            return output
+            return output + "Can't read config file\n"
         except ValueError as e:
-            output += "Invalid JSON in config file\n"
-            return output
+            return output + "Invalid JSON in config file\n"
         for key in conf["allowOverride"]:
             if fileConf.has_key(key):
                 conf[key] = fileConf[key]
-        
-        
-        #move rest of this block out of the "if" when GUI is done
+    else:
+        output += "No config file found: loading defaults\n"
+    
+    if True:  #maybe make the GUI optional?
         
         settingsGui = kanjivocab.gui.Settings(mw, conf, checkConfig)
         result = settingsGui.exec_()
@@ -68,7 +67,7 @@ def _updateKanjiVocab():
                 json.dump(fileConf, fp)
             output += "Wrote config file\n"
         except IOError as e:
-            output += "Warning: can't write config file\n"
+            return output + "Can't write config file\n"
         
         if not conf["run"]:
             return ""

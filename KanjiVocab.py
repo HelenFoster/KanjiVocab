@@ -17,7 +17,7 @@ def updateKanjiVocab():
     reload(kanjivocab.run)
     kanjivocab.run.updateKanjiVocab()
     
-action = QAction("KanjiVocab Recalc", mw)
+action = QAction("KanjiVocab...", mw)
 #action.setShortcut(_("Ctrl+K")) #this isn't good; pick a different one or leave it out
 mw.connect(action, SIGNAL("triggered()"), updateKanjiVocab)
 mw.form.menuTools.addAction(action)

@@ -12,24 +12,28 @@ The Python code is licensed under the GNU AGPL, version 3 or later (the same as 
 
 This addon includes a dictionary derived from the JMdict dictionary file. JMdict is property of the Electronic Dictionary Research and Development Group, and is used in conformance with the Group's licence. See http://www.edrdg.org/jmdict/j_jmdict.html
 
-Instructions
+Installation
 ------------
 
 Always backup your collection before installing an addon that modifies it!
 
-Copy KanjiVocab.py and the kanjivocab directory into the Anki addons directory. Edit config.py:
+Copy KanjiVocab.py and the kanjivocab directory into the Anki addons directory.
 
-* "noteType" is the name of the note type you wish to add the words to;
-* "fieldKanji" is the name of the field containing only the kanji character being tested;
-* "scan" contains the info about what cards to scan - see the comments for details.
+Restart Anki, and "KanjiVocab..." should appear on the Tools menu. This opens a dialog with the various options.
 
-Add fields to your kanji deck for the new information. By default, the names are:
+Field Setup
+-----------
+
+Add fields to your kanji deck for the new information, named as follows:
 
 * "KanjiVocab question" for the words with masked kanji (put this on the front of the card);
 * "KanjiVocab answer" for the answers to the questions (put this on the back of the card, ideally so that it appears in the same place as the question field);
 * "KanjiVocab extra" for words which would have more than one likely answer (put this on the back of the card).
 
 The above fields contain furigana, so add them using {{furigana:KanjiVocab question}} etc.
+
+CSS Setup
+---------
 
 Add CSS to your kanji deck to style the words as you like. There is an example in cards_example.css (so just copy that unless you have a different idea). Each word will have exactly one of the following classes:
 
@@ -46,5 +50,21 @@ Also, each word will have exactly one of the following classes (with the ones li
 
 Since they are separated like this, it makes sense to use text styles for one set and background colour for the other.
 
-Restart Anki, and "KanjiVocab Recalc" should appear on the Tools menu. When run, it overwrites the specified fields with the automatically-selected words.
+Settings Dialog
+---------------
+
+In the "Cards to update" tab:
+
+* "Note type" is the note type you wish to add the words to.
+* "Kanji field" is the name of the field containing only the kanji character being tested (used to decide which words to add to the card).
+* "Questions" is the maximum number of words with masked kanji to add to each card.
+* "Extra answers" is the maximum number of extra words to add to each card.
+* "Avoid ambiguous questions" lets you choose whether to avoid questions with more than one likely answer. They can still appear as "extra".
+* The "Fields to update" section shows whether the listed fields have been added correctly.
+
+In the "Cards to scan" tab, each row can be set to a different scan:
+
+* "Note type" is the note type you wish to scan. A note type can appear more than once with different options.
+* "Scan type" can be "vocab" or "text". A vocab scan considers the expression and reading as-is (the reading is optional). A text scan splits the expression with MeCab (and does not use a reading).
+* The other drop-downs let you select the expression and reading fields for each scan.
 

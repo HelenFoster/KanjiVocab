@@ -12,24 +12,23 @@ config = {}
 
 
 
-#CHANGE THESE TO MATCH YOUR DECK (AND/OR CHANGE YOUR DECK TO MATCH THESE)
+#THESE SETTINGS ARE CHANGED IN THE GUI.
+#(They are stored as JSON in the file indicated by config["pathConfigFile"]).
 
 #Update cards with this note type.
-config["noteType"] = u"Heisig"
+config["noteType"] = "Heisig"
 
 #Field used to select cards to update. Should contain only the kanji character being tested.
-config["fieldKanji"] = u"Kanji"
+config["fieldKanji"] = "Kanji"
 
-#Words with masked kanji on the front of the card. FIELD WILL BE OVERWRITTEN.
-config["fieldVocabQuestion"] = u"KanjiVocab question"
+#The maximum number of words with masked kanji on each card.
+config["numQuestions"] = 4
 
-#Answers to the above questions on the back of the card. FIELD WILL BE OVERWRITTEN. 
-config["fieldVocabResponse"] = u"KanjiVocab answer"
+#The maximum number of extra words on each card.
+config["numExtra"] = 4
 
-#Extra vocab on the back of the card. FIELD WILL BE OVERWRITTEN.
-config["fieldVocabExtra"] = u"KanjiVocab extra"
-
-
+#Whether to avoid questions with more than one likely answer.
+config["avoidAmbig"] = True
 
 #Cards to scan for known words.
 #A note type can appear more than once, with a different field.
@@ -38,7 +37,9 @@ config["fieldVocabExtra"] = u"KanjiVocab extra"
 #  If you don't have a reading field, set "reading" to "" (empty string).
 #The "text" scan splits the expression with MeCab.
 #  ("reading" should be an empty string)
-config["scan"] = [
+config["scan"] = []
+#This variable is just an example and doesn't do anything:
+configScanExample = [
     {
         "noteType": "vocab",
         "scanType": "vocab",
@@ -55,10 +56,20 @@ config["scan"] = [
 
 
 
-config["numQuestions"] = 4
-config["numExtra"] = 4
-config["avoidAmbig"] = True
-config["numScans"] = 6
+#ADD THESE FIELDS TO YOUR DECK. THE CONTENTS WILL BE OVERWRITTEN WITH EACH RUN.
+
+#Words with masked kanji on the front of the card. FIELD WILL BE OVERWRITTEN.
+config["fieldVocabQuestion"] = u"KanjiVocab question"
+
+#Answers to the above questions on the back of the card. FIELD WILL BE OVERWRITTEN. 
+config["fieldVocabResponse"] = u"KanjiVocab answer"
+
+#Extra vocab on the back of the card. FIELD WILL BE OVERWRITTEN.
+config["fieldVocabExtra"] = u"KanjiVocab extra"
+
+
+
+config["numScans"] = 8
 config["questionChar"] = u"〇"
 
 config["allowOverride"] = ["noteType", "fieldKanji", "numQuestions", "numExtra", "avoidAmbig", "scan"]
