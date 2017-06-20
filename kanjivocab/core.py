@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015  Helen Foster
+# Copyright (C) 2015,2017  Helen Foster
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import collections
@@ -166,8 +166,9 @@ class Words:
             justLearned = justLearnedKanji or justLearnedKana
             return LEARNED_YES if justLearned else LEARNED_ALREADY
         else:
-            self.add(expression, reading, WordInfo(kanjiKnown=kanjiKnown, kanaKnown=kanaKnown))
-            return LEARNED_YES
+            #self.add(expression, reading, WordInfo(kanjiKnown=kanjiKnown, kanaKnown=kanaKnown))
+            #return LEARNED_YES
+            return LEARNED_NOTFOUND
     
     def _learnPartHelp(self, ERs, kanjiKnown, kanaKnown):
         if (len(ERs) == 1):
