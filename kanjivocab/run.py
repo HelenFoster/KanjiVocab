@@ -28,6 +28,12 @@ def _updateKanjiVocab():
     conf = deepcopy(kanjivocab.config.config)
     output = ""
     
+    try:
+        splitter = kanjivocab.splitter.Splitter(conf["mecabArgs"])
+    except Exception as e:
+        conf["textScanError"] = e.message + "\n"
+        conf["textScanError"] += "Can't do sentence scan: check Japanese Support is installed and working properly"
+    
     
     if os.path.exists(conf["pathConfigFile"]):
         try:
@@ -67,72 +73,26 @@ def _updateKanjiVocab():
         if not conf["run"]:
             return ""
     
+    confError = checkConfig(mw, conf)
+    if confError:
+        return output + confError + "\n"
     
+
     model = mw.col.models.byName(conf["noteType"])
-    if model is None:
-        return output + "Can't find note type: " + conf["noteType"] + ": please edit config.py\n"
-    output += "Found note type: " + conf["noteType"] + "\n"
-    
     kanjiModelID = model["id"]
-    fieldNames = [fld[u"name"] for fld in model["flds"]]
-    if conf["fieldKanji"] in fieldNames:
-        output += "Found kanji field\n"
-    else:
-        return output + "Can't find kanji field: please edit config.py\n"
     
-    gotFieldQ = gotFieldR = gotFieldX = False
-    if conf["fieldVocabQuestion"] in fieldNames:
+    if conf["gotFieldVocabQuestion"]:
         output += "Found vocab question field\n"
-        gotFieldQ = True
     else:
-        output += "Warning: can't find vocab question field: please edit config.py if you want it\n"
-    if conf["fieldVocabResponse"] in fieldNames:
+        output += "Warning: can't find vocab question field\n"
+    if conf["gotFieldVocabResponse"]:
         output += "Found vocab response field\n"
-        gotFieldR = True
     else:
-        output += "Warning: can't find vocab response field: please edit config.py if you want it\n"
-    if conf["fieldVocabExtra"] in fieldNames:
+        output += "Warning: can't find vocab response field\n"
+    if conf["gotFieldVocabExtra"]:
         output += "Found vocab extra field\n"
-        gotFieldX = True
     else:
-        output += "Warning: can't find vocab extra field: please edit config.py if you want it\n"
-    if not gotFieldQ and not gotFieldR and not gotFieldX:
-        return output + "No fields to update: please edit config.py\n"
-    
-    
-    conf["scan"] = [d for d in conf["scan"] if d.get("noteType", "") != ""] #skip empty scan rows
-    
-    if any([d["scanType"] == "text" for d in conf["scan"]]):
-        try:
-            splitter = kanjivocab.splitter.Splitter(conf["mecabArgs"])
-            canScanText = True
-        except Exception as e:
-            output += e.message + "\n"
-            output += "Warning: Can't do sentence scan: check Japanese Support is installed and working properly\n"
-            canScanText = False
-    
-    toAnalyze = []
-    for scanDic in conf["scan"]:
-        isVocab = (scanDic["scanType"] == "vocab")
-        modelName = scanDic["noteType"]
-        expressionFieldName = scanDic["expression"]
-        readingFieldName = scanDic["reading"]
-        model = mw.col.models.byName(modelName)
-        if model is None:
-            output += "Warning: can't find model %s to analyze: please edit config.py to fix\n" % modelName
-            continue
-        fieldNames = [fld[u"name"] for fld in model["flds"]]
-        if expressionFieldName not in fieldNames:
-            output += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (expressionFieldName, modelName)
-            continue
-        if readingFieldName != "" and readingFieldName not in fieldNames:
-            output += "Warning: can't find field %s in model %s to analyze: please edit config.py to fix\n" % (readingFieldName, modelName)
-            continue
-        if isVocab or canScanText:
-            toAnalyze.append((isVocab, model, expressionFieldName, readingFieldName)) #note: model not modelName
-    
-    if not toAnalyze:
-        output += "Warning: can't find any fields to analyze: please edit config.py if you want them\n"
+        output += "Warning: can't find vocab extra field"
     
     
     if not conf["avoidAmbig"]:
@@ -150,7 +110,14 @@ def _updateKanjiVocab():
     mw.progress.update(label="Marking known words")
     wordCounts = {True: collections.Counter(), False: collections.Counter()} #[isVocab][metric]
     notFound = {True: collections.Counter(), False: collections.Counter()} #[isVocab][expression]
-    for (isVocab, model, expressionFieldName, readingFieldName) in toAnalyze:
+    for scanDic in conf["scan"]:
+        if scanDic.get("noteType", "") == "":
+            continue
+        isVocab = (scanDic["scanType"] == "vocab")
+        modelName = scanDic["noteType"]
+        expressionFieldName = scanDic["expression"]
+        readingFieldName = scanDic["reading"]
+        model = mw.col.models.byName(modelName)
         nids = mw.col.findNotes("mid:" + str(model["id"]))
         for nid in nids:
             note = mw.col.getNote(nid)
@@ -210,15 +177,64 @@ def _updateKanjiVocab():
         note = mw.col.getNote(nid)
         kanji = note[conf["fieldKanji"]]
         (fieldQ, fieldR, fieldX) = questions.getAnkiFields(kanji)
-        if gotFieldQ:
+        if conf["gotFieldVocabQuestion"]:
             note[conf["fieldVocabQuestion"]] = fieldQ
-        if gotFieldR:
+        if conf["gotFieldVocabResponse"]:
             note[conf["fieldVocabResponse"]] = fieldR
-        if gotFieldX:
+        if conf["gotFieldVocabExtra"]:
             note[conf["fieldVocabExtra"]] = fieldX
         note.flush()
     
     mw.progress.finish()
     return output + "Finished\n"
     
+
+def checkConfig(mw, conf):
+    model = mw.col.models.byName(conf["noteType"])
+    if model is None:
+        #shouldn't happen with GUI
+        return "Can't find note type: " + conf["noteType"]
+    
+    fieldNames = [fld["name"] for fld in model["flds"]]
+    
+    if conf["fieldKanji"] not in fieldNames:
+        #shouldn't happen with GUI
+        return "Can't find kanji field: " + conf["fieldKanji"]
+
+    gotFieldQ = gotFieldR = gotFieldX = False
+    if conf["fieldVocabQuestion"] in fieldNames:
+        gotFieldQ = True
+    if conf["fieldVocabResponse"] in fieldNames:
+        gotFieldR = True
+    if conf["fieldVocabExtra"] in fieldNames:
+        gotFieldX = True
+    if conf["numQuestions"] == 0 and conf["numExtra"] == 0:
+        return "0 words requested: nothing to do"
+    if not gotFieldQ and not gotFieldR and not gotFieldX:
+        return "No fields found to update"
+    if conf["numQuestions"] > 0 and not gotFieldQ and not gotFieldR:
+        return "Requested %d questions, but not found question/answer fields" % conf["numQuestions"]
+    if conf["numExtra"] > 0 and not gotFieldX:
+        return "Requested %d extra answers, but not found extra answer field" % conf["numExtra"]
+    conf["gotFieldVocabQuestion"] = gotFieldQ
+    conf["gotFieldVocabResponse"] = gotFieldR
+    conf["gotFieldVocabExtra"] = gotFieldX
+
+    #Except the last one, these errors shouldn't happen with GUI
+    for scanDic in conf["scan"]:
+        if scanDic.get("noteType", "") == "":
+            continue
+        modelName = scanDic["noteType"]
+        expressionFieldName = scanDic["expression"]
+        readingFieldName = scanDic["reading"]
+        model = mw.col.models.byName(modelName)
+        if model is None:
+            return "Can't find model %s to analyze" % modelName
+        fieldNames = [fld["name"] for fld in model["flds"]]
+        if expressionFieldName not in fieldNames:
+            return "Can't find field %s in model %s to analyze" % (expressionFieldName, modelName)
+        if readingFieldName != "" and readingFieldName not in fieldNames:
+            return "Can't find field %s in model %s to analyze" % (readingFieldName, modelName)
+        if scanDic["scanType"] == "text" and "textScanError" in conf:
+            return textScanError
 
