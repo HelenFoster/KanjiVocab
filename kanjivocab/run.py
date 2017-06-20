@@ -107,11 +107,14 @@ def _updateKanjiVocab():
     
     
     mw.progress.update(label="Marking known words")
-    wordCounts = {True: collections.Counter(), False: collections.Counter()} #[isVocab][metric]
-    notFound = {True: collections.Counter(), False: collections.Counter()} #[isVocab][expression]
-    for scanDic in conf["scan"]:
+    wordCounts = {} #[scanIndex][metric]
+    notFound = {}   #[scanIndex][expression]
+    for scanIndex in range(len(conf["scan"])):
+        scanDic = conf["scan"][scanIndex]
         if scanDic.get("noteType", "") == "":
             continue
+        wordCounts[scanIndex] = collections.Counter()
+        notFound[scanIndex]   = collections.Counter()
         isVocab = (scanDic["scanType"] == "vocab")
         modelName = scanDic["noteType"]
         expressionFieldName = scanDic["expression"]
@@ -128,7 +131,7 @@ def _updateKanjiVocab():
                 noteActive = noteActive or cardActive
                 noteMature = noteMature or cardMature
             if noteActive:
-                wordCounts[isVocab]["cells"] += 1
+                wordCounts[scanIndex]["cells"] += 1
                 known = kanjivocab.core.KNOWN_KNOWN
                 if noteMature:
                     known = kanjivocab.core.KNOWN_MATURE
@@ -143,23 +146,29 @@ def _updateKanjiVocab():
                     wordItems = set(splitter.analyze(note[expressionFieldName]))
                     learned = [(wordItem, words.learnPart(wordItem, known)) for wordItem in wordItems]
                 for (expression, wordLearned) in learned:
-                    wordCounts[isVocab][wordLearned] += 1
+                    wordCounts[scanIndex][wordLearned] += 1
                     if wordLearned == kanjivocab.core.LEARNED_NOTFOUND:
-                        notFound[isVocab][expression] += 1
-    
-    
-    def wordStats(msg1, isVocab):
-        wc = wordCounts[isVocab]
-        msg = msg1 % (wc[kanjivocab.core.LEARNED_YES], wc["cells"])
-        msg2 = " (%d duplicates, %d with >1 possible word, %d not found)\n"
-        msg += msg2 % (wc[kanjivocab.core.LEARNED_ALREADY],
-                       wc[kanjivocab.core.LEARNED_CONFUSE],
-                       len(notFound[isVocab]))  #LEARNED_NOTFOUND is way too big
-        return msg
-    if wordCounts[True]["cells"] != 0:
-        output += wordStats("Marked %d known words from %d vocab notes\n", True)
-    if wordCounts[False]["cells"] != 0:
-        output += wordStats("Marked %d known words from %d text cells\n", False)
+                        notFound[scanIndex][expression] += 1
+
+
+    for scanIndex in sorted(wordCounts.keys()):
+        wc = wordCounts[scanIndex]
+        scanDic = conf["scan"][scanIndex]
+        if scanDic["scanType"] == "vocab":
+            output += "Done vocab scan on note type "
+        else:
+            output += "Done text scan on note type "
+        output += '"%s" ' % scanDic["noteType"]
+        if scanDic["reading"] == "":
+            output += '(field "%s")\n' % (scanDic["expression"],)
+        else:
+            output += '(fields "%s", "%s")\n' % (scanDic["expression"], scanDic["reading"])
+        msg = " Marked %d known words from %d active notes\n"
+        output += msg % (wc[kanjivocab.core.LEARNED_YES], wc["cells"])
+        msg = " (%d duplicates, %d with >1 possible word, %d not found)\n"
+        output += msg % (wc[kanjivocab.core.LEARNED_ALREADY],
+                         wc[kanjivocab.core.LEARNED_CONFUSE],
+                         len(notFound[scanIndex]))  #LEARNED_NOTFOUND is way too big
     
     
     mw.progress.update(label="Creating questions")
