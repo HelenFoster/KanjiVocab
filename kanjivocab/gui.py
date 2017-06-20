@@ -24,12 +24,12 @@ class ComboBoxKV(QComboBox):
 
 class Settings(QDialog):
 
-    def __init__(self, mw, conf):
+    def __init__(self, mw, conf, checkConfig):
 
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.conf = deepcopy(conf)
-        self.foundFieldToUpdate = False
+        self.checkConfig = checkConfig
 
         self.resize(600, 400)
         self.setWindowTitle("KanjiVocab settings")
@@ -114,8 +114,7 @@ class Settings(QDialog):
         def buttonClicked(button):
             role = buttons.buttonRole(button)
             if role == QDialogButtonBox.YesRole:
-                self.conf["run"] = True
-                self.accept()
+                self.checkAndRun()
             elif role == QDialogButtonBox.AcceptRole:
                 self.accept()
             else:
@@ -213,15 +212,22 @@ class Settings(QDialog):
 
     def updateFieldsToUpdate(self, noteTypeName):
         fieldNames = self.lookupFieldNames(noteTypeName)
-        self.foundFieldToUpdate = False
         def updateLine(widget, fieldName):
             if fieldName in fieldNames:
                 text = "found"
-                self.foundFieldToUpdate = True
             else:
                 text = "not found"
             widget.setText(text)
         updateLine(self.foundFieldQuestion, self.conf["fieldVocabQuestion"])
         updateLine(self.foundFieldAnswer, self.conf["fieldVocabResponse"])
         updateLine(self.foundFieldExtra, self.conf["fieldVocabExtra"])
+    
+    def checkAndRun(self):
+        confError = self.checkConfig(self.mw, self.conf)
+        if confError:
+            msgbox = QMessageBox(QMessageBox.Warning, "Error", confError, QMessageBox.Ok)
+            msgbox.exec_()
+        else:
+            self.conf["run"] = True
+            self.accept()
 

@@ -53,7 +53,7 @@ def _updateKanjiVocab():
         
         #move rest of this block out of the "if" when GUI is done
         
-        settingsGui = kanjivocab.gui.Settings(mw, conf)
+        settingsGui = kanjivocab.gui.Settings(mw, conf, checkConfig)
         result = settingsGui.exec_()
         if result == QDialog.Rejected:
             return ""
