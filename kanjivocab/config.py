@@ -90,5 +90,5 @@ config["learnMatchLikely"] = wordIsP1
 config["learnMatchConfuse"] = wordIsP1
 config["questionKey"] = questionKey
 config["questionKeyExtra"] = questionKey
-config["questionFilter"] = questionFilter
+config["questionFilter"] = questionFilter  #replaced with questionFilterExtra if avoidAmbig is False
 config["questionFilterExtra"] = questionFilterExtra

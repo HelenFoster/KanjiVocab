@@ -135,6 +135,10 @@ def _updateKanjiVocab():
         output += "Warning: can't find any fields to analyze: please edit config.py if you want them\n"
     
     
+    if not conf["avoidAmbig"]:
+        conf["questionFilter"] = conf["questionFilterExtra"]
+    
+    
     mw.progress.start(label="Loading dictionary", immediate=True)
     try:
         words = kanjivocab.core.Words(conf)
