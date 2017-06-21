@@ -76,9 +76,6 @@ def _updateKanjiVocab():
     if confError:
         return output + confError + "\n"
     
-
-    model = mw.col.models.byName(conf["noteType"])
-    kanjiModelID = model["id"]
     
     if conf["gotFieldVocabQuestion"]:
         output += "Found vocab question field\n"
@@ -179,19 +176,33 @@ def _updateKanjiVocab():
     mw.progress.update(label="Updating notes")
     mw.checkpoint("KanjiVocab")  #set undo checkpoint (about to start changing stuff here)
     
-    nids = mw.col.findNotes("mid:" + str(kanjiModelID))
-    output += "%d kanji notes to be updated\n" % len(nids)
+    model = mw.col.models.byName(conf["noteType"])
+    nids = mw.col.findNotes("mid:" + str(model["id"]))
+    knownKanji = 0
+    def hasKnown(text):
+        return "_known" in text or "_mature" in text
     for nid in nids:
         note = mw.col.getNote(nid)
         kanji = note[conf["fieldKanji"]]
         (fieldQ, fieldR, fieldX) = questions.getAnkiFields(kanji)
+        known = False
         if conf["gotFieldVocabQuestion"]:
             note[conf["fieldVocabQuestion"]] = fieldQ
+            if hasKnown(fieldQ):
+                known = True
         if conf["gotFieldVocabResponse"]:
             note[conf["fieldVocabResponse"]] = fieldR
+            if hasKnown(fieldR):
+                known = True
         if conf["gotFieldVocabExtra"]:
             note[conf["fieldVocabExtra"]] = fieldX
+            if hasKnown(fieldX):
+                known = True
+        if known:
+            knownKanji += 1
         note.flush()
+    output += "Updated %d kanji notes (%d having known word(s))\n" % (len(nids), knownKanji)
+    
     
     mw.progress.finish()
     return output + "Finished\n"
