@@ -31,7 +31,7 @@ class Settings(QDialog):
         self.conf = deepcopy(conf)
         self.checkConfig = checkConfig
 
-        self.resize(600, 400)
+        self.resize(780, 400)
         self.setWindowTitle("KanjiVocab settings")
         
         self.layoutOuter = QVBoxLayout(self)
