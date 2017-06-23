@@ -255,5 +255,5 @@ def checkConfig(mw, conf):
         if readingFieldName != "" and readingFieldName not in fieldNames:
             return "Can't find field %s in model %s to analyze" % (readingFieldName, modelName)
         if scanDic["scanType"] == "text" and "textScanError" in conf:
-            return textScanError
+            return conf["textScanError"]
 

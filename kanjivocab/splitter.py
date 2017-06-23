@@ -24,10 +24,10 @@ class Splitter:
                 '-d', base, '-r', base + "mecabrc"])
         os.environ['DYLD_LIBRARY_PATH'] = base
         os.environ['LD_LIBRARY_PATH'] = base
-        if not isWin:
-            os.chmod(mecabCmd[0], 0755)
-
+        
         try:
+            if not isWin:
+                os.chmod(mecabCmd[0], 0755)
             self.mecab = subprocess.Popen(
                 mecabCmd, bufsize=-1, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
