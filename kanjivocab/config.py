@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015,2016,2017  Helen Foster
+# Copyright (C) 2015,2016,2017,2019  Helen Foster
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
 
 import os
 from aqt import mw
-from kanjivocab.core import KNOWN_NOT
+from .core import KNOWN_NOT
 
 config = {}
 

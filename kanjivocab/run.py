@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015,2016,2017  Helen Foster
+# Copyright (C) 2015,2016,2017,2019  Helen Foster
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
@@ -7,6 +7,11 @@ import os, collections, json
 from copy import deepcopy
 from aqt import mw
 from aqt.utils import *
+
+try:
+    from importlib import reload
+except:
+    pass #Python 2 has reload built-in
 
 
 def updateKanjiVocab():
@@ -16,20 +21,20 @@ def updateKanjiVocab():
 
 
 def _updateKanjiVocab():
-    import kanjivocab.core
-    reload(kanjivocab.core)
-    import kanjivocab.config
-    reload(kanjivocab.config)
-    import kanjivocab.splitter
-    reload(kanjivocab.splitter)
-    import kanjivocab.gui
-    reload(kanjivocab.gui)
+    from . import core as kvcore
+    reload(kvcore)
+    from . import config as kvconfig
+    reload(kvconfig)
+    from . import splitter as kvsplitter
+    reload(kvsplitter)
+    from . import gui as kvgui
+    reload(kvgui)
     
-    conf = deepcopy(kanjivocab.config.config)
+    conf = deepcopy(kvconfig.config)
     output = ""
     
     try:
-        splitter = kanjivocab.splitter.Splitter(conf["mecabArgs"])
+        splitter = kvsplitter.Splitter(conf["mecabArgs"])
     except Exception as e:
         conf["textScanError"] = e.message + "\n"
         conf["textScanError"] += "Can't do sentence scan: check Japanese Support is installed and working properly"
@@ -52,7 +57,7 @@ def _updateKanjiVocab():
     
     if True:  #maybe make the GUI optional?
         
-        settingsGui = kanjivocab.gui.Settings(mw, conf, checkConfig)
+        settingsGui = kvgui.Settings(mw, conf, checkConfig)
         result = settingsGui.exec_()
         if result == QDialog.Rejected:
             return ""
@@ -97,7 +102,7 @@ def _updateKanjiVocab():
     
     mw.progress.start(label="Loading dictionary", immediate=True)
     try:
-        words = kanjivocab.core.Words(conf)
+        words = kvcore.Words(conf)
     except IOError:
         return output + "Can't load dictionary"
     output += "Loaded dictionary\n"
@@ -129,9 +134,9 @@ def _updateKanjiVocab():
                 noteMature = noteMature or cardMature
             if noteActive:
                 wordCounts[scanIndex]["cells"] += 1
-                known = kanjivocab.core.KNOWN_KNOWN
+                known = kvcore.KNOWN_KNOWN
                 if noteMature:
-                    known = kanjivocab.core.KNOWN_MATURE
+                    known = kvcore.KNOWN_MATURE
                 if isVocab:
                     expression = note[expressionFieldName]
                     if readingFieldName == "":
@@ -144,7 +149,7 @@ def _updateKanjiVocab():
                     learned = [(wordItem, words.learnPart(wordItem, known)) for wordItem in wordItems]
                 for (expression, wordLearned) in learned:
                     wordCounts[scanIndex][wordLearned] += 1
-                    if wordLearned == kanjivocab.core.LEARNED_NOTFOUND:
+                    if wordLearned == kvcore.LEARNED_NOTFOUND:
                         notFound[scanIndex][expression] += 1
 
 
@@ -161,15 +166,15 @@ def _updateKanjiVocab():
         else:
             output += '(fields "%s", "%s")\n' % (scanDic["expression"], scanDic["reading"])
         msg = " Marked %d known words from %d active notes\n"
-        output += msg % (wc[kanjivocab.core.LEARNED_YES], wc["cells"])
+        output += msg % (wc[kvcore.LEARNED_YES], wc["cells"])
         msg = " (%d duplicates, %d with >1 possible word, %d not found)\n"
-        output += msg % (wc[kanjivocab.core.LEARNED_ALREADY],
-                         wc[kanjivocab.core.LEARNED_CONFUSE],
+        output += msg % (wc[kvcore.LEARNED_ALREADY],
+                         wc[kvcore.LEARNED_CONFUSE],
                          len(notFound[scanIndex]))  #LEARNED_NOTFOUND is way too big
     
     
     mw.progress.update(label="Creating questions")
-    questions = kanjivocab.core.Questions(words)
+    questions = kvcore.Questions(words)
     output += "Created questions\n"
 
     
