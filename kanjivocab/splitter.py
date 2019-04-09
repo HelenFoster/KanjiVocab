@@ -27,7 +27,7 @@ class Splitter:
         
         try:
             if not isWin:
-                os.chmod(mecabCmd[0], 0755)
+                os.chmod(mecabCmd[0], 0o755)
             self.mecab = subprocess.Popen(
                 mecabCmd, bufsize=-1, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,

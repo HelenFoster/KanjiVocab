@@ -36,7 +36,7 @@ def _updateKanjiVocab():
     try:
         splitter = kvsplitter.Splitter(conf["mecabArgs"])
     except Exception as e:
-        conf["textScanError"] = e.message + "\n"
+        conf["textScanError"] = str(e) + "\n"
         conf["textScanError"] += "Can't do sentence scan: check Japanese Support is installed and working properly"
     
     
@@ -50,7 +50,7 @@ def _updateKanjiVocab():
         except ValueError as e:
             return output + "Invalid JSON in config file\n"
         for key in conf["allowOverride"]:
-            if fileConf.has_key(key):
+            if key in fileConf:
                 conf[key] = fileConf[key]
     else:
         output += "No config file found: loading defaults\n"
@@ -93,7 +93,7 @@ def _updateKanjiVocab():
     if conf["gotFieldVocabExtra"]:
         output += "Found vocab extra field\n"
     else:
-        output += "Warning: can't find vocab extra field"
+        output += "Warning: can't find vocab extra field\n"
     
     
     if not conf["avoidAmbig"]:

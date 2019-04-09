@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2015,2017  Helen Foster
+# Copyright (C) 2015,2017,2019  Helen Foster
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import collections
@@ -131,10 +131,10 @@ class Words:
         
         countWords = 0
         linesMissed = 0
-        with open(config["pathDicFile"]) as f:
+        with open(config["pathDicFile"], "rb") as f:
             for line in f:
                 parts = line.decode("utf-8").rstrip("\r\n").split("\t")
-                if not line.startswith("#") and len(parts) == 3:
+                if not parts[0].startswith("#") and len(parts) == 3:
                     countWords += 1
                     expression = parts[0]
                     reading = parts[1]
@@ -148,16 +148,16 @@ class Words:
                     linesMissed += 1
     
     def add(self, expression, reading, wordInfo):
-        if not self._dic.has_key(expression):
+        if expression not in self._dic:
             self._dic[expression] = {}
-        if not self._dicT.has_key(reading):
+        if reading not in self._dicT:
             self._dicT[reading] = {}
         self._dic[expression][reading] = wordInfo
         self._dicT[reading][expression] = 1
     
     def contains(self, expression, reading):
         dic = self._dic
-        return dic.has_key(expression) and dic[expression].has_key(reading)
+        return expression in dic and reading in dic[expression]
     
     def _learnFull(self, expression, reading, kanjiKnown, kanaKnown):
         if self.contains(expression, reading):
@@ -192,12 +192,12 @@ class Words:
     def learnPart(self, text, known):
         if known == KNOWN_NOT:
             return LEARNED_NOTKNOWN
-        elif self._dic.has_key(text):
+        elif text in self._dic:
             expression = text
             readings = self._dic[expression]
             ERs = [(expression, reading) for reading in readings]
             return self._learnPartHelp(ERs, known, KNOWN_NOT)
-        elif self._dicT.has_key(text):
+        elif text in self._dicT:
             reading = text
             expressions = self._dicT[reading]
             ERs = [(expression, reading) for expression in expressions]
@@ -240,9 +240,9 @@ class Questions:
     def add(self, kanji, question, reading, wordInfo):
         dic = self._dic
         QR = (question, reading)
-        if not dic.has_key(kanji):
+        if not kanji in dic:
             dic[kanji] = {}
-        if not dic[kanji].has_key(QR):
+        if not QR in dic[kanji]:
             dic[kanji][QR] = wordInfo
             self._counts[QR] += 1
             if self._config["questionMatchConfuse"](wordInfo):
