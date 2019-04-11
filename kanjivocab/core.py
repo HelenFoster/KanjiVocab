@@ -213,17 +213,12 @@ class Words:
         else:
             return self._learnFull(expression, reading, known, known)
     
-    def iterGen(self):
+    def __iter__(self):
         dic = self._dic
         for expression in dic:
             for reading in dic[expression]:
                 wordInfo = dic[expression][reading]
                 yield (expression, reading, wordInfo)
-    def __iter__(self):
-        self.gen = self.iterGen()
-        return self
-    def next(self):
-        return self.gen.next()
 
 
 class Questions:
@@ -261,7 +256,7 @@ class Questions:
     
     def getSomeQuestions(self, kanji, limit, fFilter=None, fSort=None):
         qs = self.getQuestions(kanji)
-        qs = filter(fFilter, qs)
+        qs = [q for q in filter(fFilter, qs)]
         qs.sort(key=fSort)
         return qs[:limit]
     
