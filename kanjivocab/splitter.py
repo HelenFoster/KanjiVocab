@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-# New code copyright (C) 2017  Helen Foster
+# New code copyright (C) 2017,2019  Helen Foster
 #
 # Based on japanese/reading.py
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # https://ankiweb.net/shared/info/3918629684
 #
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
@@ -16,14 +16,21 @@ class Splitter:
         try:
             import japanese
         except:
-            raise Exception('Failed to import "japanese"')
+            try:
+                japanese = __import__("3918629684")
+            except:
+                raise Exception('Failed to import Japanese Support module')
+        self.jpr = japanese.reading
+        try:
+            supportDir = self.jpr.supportDir
+        except:
+            supportDir = "../../addons/japanese/support/"
         
-        base = "../../addons/japanese/support/"
-        mecabCmd = japanese.reading.mungeForPlatform(
-            [base + "mecab"] + mecabArgs + [
-                '-d', base, '-r', base + "mecabrc"])
-        os.environ['DYLD_LIBRARY_PATH'] = base
-        os.environ['LD_LIBRARY_PATH'] = base
+        mecabCmd = self.jpr.mungeForPlatform(
+            [os.path.join(supportDir, "mecab")] + mecabArgs + [
+                '-d', supportDir, '-r', os.path.join(supportDir,"mecabrc")])
+        os.environ['DYLD_LIBRARY_PATH'] = supportDir
+        os.environ['LD_LIBRARY_PATH'] = supportDir
         
         try:
             if not isWin:
@@ -31,15 +38,14 @@ class Splitter:
             self.mecab = subprocess.Popen(
                 mecabCmd, bufsize=-1, stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                startupinfo=japanese.reading.si)
+                startupinfo=self.jpr.si)
         except OSError:
-            raise Exception("Failed to run MeCab")
+            raise Exception("Failed to run MeCab at %s" % mecabCmd[0])
 
     def analyze(self, expr):
-        import japanese
-        expr = japanese.reading.escapeText(expr)
-        self.mecab.stdin.write(expr.encode("euc-jp", "ignore")+'\n')
+        expr = self.jpr.escapeText(expr)
+        self.mecab.stdin.write(expr.encode("euc-jp", "ignore") + b'\n')
         self.mecab.stdin.flush()
-        expr = unicode(self.mecab.stdout.readline().rstrip('\r\n'), "euc-jp")
+        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('euc-jp')
         return expr.split("@")
 
