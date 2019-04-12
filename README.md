@@ -17,7 +17,9 @@ Installation
 
 Always backup your collection before installing an addon that modifies it!
 
-Copy KanjiVocab.py and the kanjivocab directory into the Anki addons directory.
+**Anki 2.1:** Copy the `kanjivocab` directory into the Anki `addons21` directory.
+
+**Anki 2.0:** Copy `KanjiVocab.py` and the `kanjivocab` directory into the Anki `addons` directory.
 
 Restart Anki, and "KanjiVocab..." should appear on the Tools menu. This opens a dialog with the various options.
 
