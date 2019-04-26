@@ -7,11 +7,16 @@ import os, collections, json
 from copy import deepcopy
 from aqt import mw
 from aqt.utils import *
+from anki.utils import stripHTML
 
 try:
     from importlib import reload
 except:
     pass #Python 2 has reload built-in
+
+
+def clean(fieldText):
+    return stripHTML(fieldText).strip()
 
 
 def updateKanjiVocab():
@@ -137,15 +142,15 @@ def _updateKanjiVocab():
                 known = kvcore.KNOWN_KNOWN
                 if noteMature:
                     known = kvcore.KNOWN_MATURE
+                expression = clean(note[expressionFieldName])
                 if isVocab:
-                    expression = note[expressionFieldName]
                     if readingFieldName == "":
                         learned = words.learnPart(expression, known)
                     else:
-                        learned = words.learnVocab(expression, note[readingFieldName], known)
+                        learned = words.learnVocab(expression, clean(note[readingFieldName]), known)
                     learned = [(expression, learned)]
                 else:
-                    wordItems = set(splitter.analyze(note[expressionFieldName]))
+                    wordItems = set(splitter.analyze(expression))
                     learned = [(wordItem, words.learnPart(wordItem, known)) for wordItem in wordItems]
                 for (expression, wordLearned) in learned:
                     wordCounts[scanIndex][wordLearned] += 1
@@ -188,7 +193,7 @@ def _updateKanjiVocab():
         return "_known" in text or "_mature" in text
     for nid in nids:
         note = mw.col.getNote(nid)
-        kanji = note[conf["fieldKanji"]]
+        kanji = clean(note[conf["fieldKanji"]])
         (fieldQ, fieldR, fieldX) = questions.getAnkiFields(kanji)
         known = False
         if conf["gotFieldVocabQuestion"]:
