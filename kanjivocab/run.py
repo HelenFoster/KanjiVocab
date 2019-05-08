@@ -8,6 +8,7 @@ from copy import deepcopy
 from aqt import mw
 from aqt.utils import *
 from anki.utils import stripHTML
+from anki.template import furigana
 
 try:
     from importlib import reload
@@ -142,12 +143,13 @@ def _updateKanjiVocab():
                 known = kvcore.KNOWN_KNOWN
                 if noteMature:
                     known = kvcore.KNOWN_MATURE
-                expression = clean(note[expressionFieldName])
+                expression = furigana.kanji(clean(note[expressionFieldName]))
                 if isVocab:
                     if readingFieldName == "":
                         learned = words.learnPart(expression, known)
                     else:
-                        learned = words.learnVocab(expression, clean(note[readingFieldName]), known)
+                        reading = furigana.kana(clean(note[readingFieldName]))
+                        learned = words.learnVocab(expression, reading, known)
                     learned = [(expression, learned)]
                 else:
                     wordItems = set(splitter.analyze(expression))
