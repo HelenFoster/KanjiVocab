@@ -61,7 +61,7 @@ In the "Cards to update" tab:
 * "Kanji field" is the name of the field containing only the kanji character being tested (used to decide which words to add to the card).
 * "Questions" is the maximum number of words with masked kanji to add to each card.
 * "Extra answers" is the maximum number of extra words to add to each card.
-* "Avoid ambiguous questions" lets you choose whether to avoid questions with more than one likely answer. They can still appear as "extra".
+* "Allow ambiguous questions" lets you choose whether to allow questions with more than one likely answer. Even if not, they can still appear as "extra".
 * The "Fields to update" section shows whether the listed fields have been added correctly.
 
 In the "Cards to scan" tab, each row can be set to a different scan:

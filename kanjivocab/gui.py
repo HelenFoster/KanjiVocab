@@ -53,7 +53,7 @@ class Settings(QDialog):
         self.layoutUpdate.addWidget(
             QLabel(text="Extra answers"), 3, 0)
         self.layoutUpdate.addWidget(
-            QLabel(text="Avoid ambiguous questions"), 4, 0)
+            QLabel(text="Allow ambiguous questions"), 4, 0)
         self.layoutUpdate.addWidget(
             QLabel(text="<b>Fields to update (the existing contents will be lost!)</b>"), 
             5, 0, 1, 2)
@@ -68,7 +68,7 @@ class Settings(QDialog):
         self.pickFieldKanji = ComboBoxKV()
         self.pickNumQuestions = QSpinBox()
         self.pickNumExtra = QSpinBox()
-        self.pickAvoidAmbig = QCheckBox()
+        self.pickAllowAmbig = QCheckBox()
         self.foundFieldQuestion = QLabel()
         self.foundFieldAnswer = QLabel()
         self.foundFieldExtra = QLabel()
@@ -77,7 +77,7 @@ class Settings(QDialog):
         self.layoutUpdate.addWidget(self.pickFieldKanji, 1, 1)
         self.layoutUpdate.addWidget(self.pickNumQuestions, 2, 1)
         self.layoutUpdate.addWidget(self.pickNumExtra, 3, 1)
-        self.layoutUpdate.addWidget(self.pickAvoidAmbig, 4, 1)
+        self.layoutUpdate.addWidget(self.pickAllowAmbig, 4, 1)
         self.layoutUpdate.addWidget(self.foundFieldQuestion, 6, 1)
         self.layoutUpdate.addWidget(self.foundFieldAnswer, 7, 1)
         self.layoutUpdate.addWidget(self.foundFieldExtra, 8, 1)
@@ -155,11 +155,11 @@ class Settings(QDialog):
         pickNumExtraChanged(self.pickNumExtra.value())
         self.pickNumExtra.valueChanged.connect(pickNumExtraChanged)
         
-        def pickAvoidAmbigChanged(state):
-            self.conf["avoidAmbig"] = self.pickAvoidAmbig.isChecked()
-        self.pickAvoidAmbig.setChecked(self.conf.get("avoidAmbig", True))
-        pickAvoidAmbigChanged(None)
-        self.pickAvoidAmbig.stateChanged.connect(pickAvoidAmbigChanged)
+        def pickAllowAmbigChanged(state):
+            self.conf["allowAmbig"] = self.pickAllowAmbig.isChecked()
+        self.pickAllowAmbig.setChecked(self.conf.get("allowAmbig", False))
+        pickAllowAmbigChanged(None)
+        self.pickAllowAmbig.stateChanged.connect(pickAllowAmbigChanged)
         
         scanConfs = self.conf.get("scan", [])
         scanConfs = scanConfs[:numScans]  #discard any scans we can't see

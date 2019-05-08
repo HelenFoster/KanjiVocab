@@ -101,7 +101,7 @@ def _updateKanjiVocab():
         output += "Warning: can't find vocab extra field\n"
     
     
-    if not conf["avoidAmbig"]:
+    if conf["allowAmbig"]:
         conf["questionFilter"] = conf["questionFilterExtra"]
     
     

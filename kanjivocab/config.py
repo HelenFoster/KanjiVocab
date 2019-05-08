@@ -27,8 +27,8 @@ config["numQuestions"] = 4
 #The maximum number of extra words on each card.
 config["numExtra"] = 4
 
-#Whether to avoid questions with more than one likely answer.
-config["avoidAmbig"] = True
+#Whether to allow questions with more than one likely answer.
+config["allowAmbig"] = False
 
 #Cards to scan for known words.
 #A note type can appear more than once, with a different field.
@@ -72,7 +72,7 @@ config["fieldVocabExtra"] = u"KanjiVocab extra"
 config["numScans"] = 8
 config["questionChar"] = u"〇"
 
-config["allowOverride"] = ["noteType", "fieldKanji", "numQuestions", "numExtra", "avoidAmbig", "scan"]
+config["allowOverride"] = ["noteType", "fieldKanji", "numQuestions", "numExtra", "allowAmbig", "scan"]
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
 config["pathConfigFile"] = os.path.normpath(os.path.join(mw.col.media.dir(), "../KanjiVocab.json"))
 
@@ -101,5 +101,5 @@ config["learnMatchLikely"] = wordIsP1
 config["learnMatchConfuse"] = wordIsP1
 config["questionKey"] = questionKey
 config["questionKeyExtra"] = questionKey
-config["questionFilter"] = questionFilter  #replaced with questionFilterExtra if avoidAmbig is False
+config["questionFilter"] = questionFilter  #replaced with questionFilterExtra if allowAmbig is True
 config["questionFilterExtra"] = questionFilterExtra
