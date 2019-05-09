@@ -102,8 +102,18 @@ def _updateKanjiVocab():
         output += "Warning: can't find vocab extra field\n"
     
     
+    freqFilter = conf["freqFilters"][conf["freqFilter"]]
+    def questionFilterExtra(q):
+        return q.kanjiKnown != kvcore.KNOWN_NOT or q.kanaKnown != kvcore.KNOWN_NOT or freqFilter(q)
+    
+    def questionFilter(q):
+        return questionFilterExtra(q) and q.isLikely()
+    
+    conf["questionFilterExtra"] = questionFilterExtra
     if conf["allowAmbig"]:
-        conf["questionFilter"] = conf["questionFilterExtra"]
+        conf["questionFilter"] = questionFilterExtra
+    else:
+        conf["questionFilter"] = questionFilter
     
     
     mw.progress.start(label="Loading dictionary", immediate=True)
@@ -190,6 +200,7 @@ def _updateKanjiVocab():
     
     model = mw.col.models.byName(conf["noteType"])
     nids = mw.col.findNotes("mid:" + str(model["id"]))
+    filledKanji = 0
     knownKanji = 0
     def hasKnown(text):
         return "_known" in text or "_mature" in text
@@ -197,23 +208,33 @@ def _updateKanjiVocab():
         note = mw.col.getNote(nid)
         kanji = clean(note[conf["fieldKanji"]])
         (fieldQ, fieldR, fieldX) = questions.getAnkiFields(kanji)
+        filled = False
         known = False
         if conf["gotFieldVocabQuestion"]:
             note[conf["fieldVocabQuestion"]] = fieldQ
+            if fieldQ != "":
+                filled = True
             if hasKnown(fieldQ):
                 known = True
         if conf["gotFieldVocabResponse"]:
             note[conf["fieldVocabResponse"]] = fieldR
+            if fieldR != "":
+                filled = True
             if hasKnown(fieldR):
                 known = True
         if conf["gotFieldVocabExtra"]:
             note[conf["fieldVocabExtra"]] = fieldX
+            if fieldX != "":
+                filled = True
             if hasKnown(fieldX):
                 known = True
+        if filled:
+            filledKanji += 1
         if known:
             knownKanji += 1
         note.flush()
-    output += "Updated %d kanji notes (%d having known word(s))\n" % (len(nids), knownKanji)
+    output += "Updated %d kanji notes\n (%d with word(s), %d with known word(s))\n" % \
+        (len(nids), filledKanji, knownKanji)
     
     
     mw.progress.finish()
@@ -231,6 +252,10 @@ def checkConfig(mw, conf):
     if conf["fieldKanji"] not in fieldNames:
         #shouldn't happen with GUI
         return "Can't find kanji field: " + conf["fieldKanji"]
+
+    if conf["freqFilter"] not in conf["freqFilters"]:
+        #shouldn't happen with GUI
+        return "Can't find freq filter: " + conf["freqFilter"]
 
     gotFieldQ = gotFieldR = gotFieldX = False
     if conf["fieldVocabQuestion"] in fieldNames:

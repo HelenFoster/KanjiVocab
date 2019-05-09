@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2017  Helen Foster
+# Copyright (C) 2017,2019  Helen Foster
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 
@@ -19,6 +19,18 @@ class ComboBoxKV(QComboBox):
         if index == -1:
             index = defaultIndex
         self.setCurrentIndex(index)
+
+
+class Count:
+    
+    def __init__(self, start=0, step=1):
+        self.x = start
+        self.step = step
+    
+    def next(self):
+        x = self.x
+        self.x = x + self.step
+        return x
 
 
 class Settings(QDialog):
@@ -44,28 +56,32 @@ class Settings(QDialog):
         
         self.layoutUpdate = QGridLayout(self.tabUpdate)
         
+        r = Count()
         self.layoutUpdate.addWidget(
-            QLabel(text="Note type"), 0, 0)
+            QLabel(text="Note type"), r.next(), 0)
         self.layoutUpdate.addWidget(
-            QLabel(text="Kanji field (the kanji character by itself)"), 1, 0)
+            QLabel(text="Kanji field (the kanji character by itself)"), r.next(), 0)
         self.layoutUpdate.addWidget(
-            QLabel(text="Questions"), 2, 0)
+            QLabel(text="Dictionary words (not scanned)"), r.next(), 0)
         self.layoutUpdate.addWidget(
-            QLabel(text="Extra answers"), 3, 0)
+            QLabel(text="Questions"), r.next(), 0)
         self.layoutUpdate.addWidget(
-            QLabel(text="Allow ambiguous questions"), 4, 0)
+            QLabel(text="Extra answers"), r.next(), 0)
+        self.layoutUpdate.addWidget(
+            QLabel(text="Allow ambiguous questions"), r.next(), 0)
         self.layoutUpdate.addWidget(
             QLabel(text="<b>Fields to update (the existing contents will be lost!)</b>"), 
-            5, 0, 1, 2)
+            r.next(), 0, 1, 2)
         self.layoutUpdate.addWidget(
-            QLabel(text=conf["fieldVocabQuestion"]), 6, 0)
+            QLabel(text=conf["fieldVocabQuestion"]), r.next(), 0)
         self.layoutUpdate.addWidget(
-            QLabel(text=conf["fieldVocabResponse"]), 7, 0)
+            QLabel(text=conf["fieldVocabResponse"]), r.next(), 0)
         self.layoutUpdate.addWidget(
-            QLabel(text=conf["fieldVocabExtra"]), 8, 0)
+            QLabel(text=conf["fieldVocabExtra"]), r.next(), 0)
         
         self.pickNoteType = ComboBoxKV()
         self.pickFieldKanji = ComboBoxKV()
+        self.pickFreqFilter = ComboBoxKV()
         self.pickNumQuestions = QSpinBox()
         self.pickNumExtra = QSpinBox()
         self.pickAllowAmbig = QCheckBox()
@@ -73,14 +89,17 @@ class Settings(QDialog):
         self.foundFieldAnswer = QLabel()
         self.foundFieldExtra = QLabel()
         
-        self.layoutUpdate.addWidget(self.pickNoteType, 0, 1)
-        self.layoutUpdate.addWidget(self.pickFieldKanji, 1, 1)
-        self.layoutUpdate.addWidget(self.pickNumQuestions, 2, 1)
-        self.layoutUpdate.addWidget(self.pickNumExtra, 3, 1)
-        self.layoutUpdate.addWidget(self.pickAllowAmbig, 4, 1)
-        self.layoutUpdate.addWidget(self.foundFieldQuestion, 6, 1)
-        self.layoutUpdate.addWidget(self.foundFieldAnswer, 7, 1)
-        self.layoutUpdate.addWidget(self.foundFieldExtra, 8, 1)
+        r = Count()
+        self.layoutUpdate.addWidget(self.pickNoteType, r.next(), 1)
+        self.layoutUpdate.addWidget(self.pickFieldKanji, r.next(), 1)
+        self.layoutUpdate.addWidget(self.pickFreqFilter, r.next(), 1)
+        self.layoutUpdate.addWidget(self.pickNumQuestions, r.next(), 1)
+        self.layoutUpdate.addWidget(self.pickNumExtra, r.next(), 1)
+        self.layoutUpdate.addWidget(self.pickAllowAmbig, r.next(), 1)
+        r.next()
+        self.layoutUpdate.addWidget(self.foundFieldQuestion, r.next(), 1)
+        self.layoutUpdate.addWidget(self.foundFieldAnswer, r.next(), 1)
+        self.layoutUpdate.addWidget(self.foundFieldExtra, r.next(), 1)
         
         
         self.layoutScan = QGridLayout(self.tabScan)
@@ -142,6 +161,12 @@ class Settings(QDialog):
         def pickFieldKanjiChanged(text):
             self.conf["fieldKanji"] = text
         self.pickFieldKanji.setup(self.conf, "fieldKanji", pickFieldKanjiChanged)
+        
+        def pickFreqFilterChanged(text):
+            self.conf["freqFilter"] = text
+        for item in self.conf["freqFilters"]:
+            self.pickFreqFilter.addItem(item)
+        self.pickFreqFilter.setup(self.conf, "freqFilter", pickFreqFilterChanged)
         
         def pickNumQuestionsChanged(value):
             self.conf["numQuestions"] = value

@@ -4,9 +4,8 @@
 
 
 
-import os
+import collections, os
 from aqt import mw
-from .core import KNOWN_NOT
 
 config = {}
 
@@ -20,6 +19,9 @@ config["noteType"] = "Heisig"
 
 #Field used to select cards to update. Should contain only the kanji character being tested.
 config["fieldKanji"] = "Kanji"
+
+#One of the keys of "freqFilters", for choosing unscanned dictionary words.
+config["freqFilter"] = "none"
 
 #The maximum number of words with masked kanji on each card.
 config["numQuestions"] = 4
@@ -72,28 +74,22 @@ config["fieldVocabExtra"] = u"KanjiVocab extra"
 config["numScans"] = 8
 config["questionChar"] = u"〇"
 
-config["allowOverride"] = ["noteType", "fieldKanji", "numQuestions", "numExtra", "allowAmbig", "scan"]
+config["allowOverride"] = ["noteType", "fieldKanji", "freqFilter", "numQuestions", "numExtra", "allowAmbig", "scan"]
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
 config["pathConfigFile"] = os.path.normpath(os.path.join(mw.col.media.dir(), "../KanjiVocab.json"))
 
 #Using '@' to split results.
 config["mecabArgs"] = ['--node-format="%m@%f[6]@"']
 
-def wordIsP1(wordInfo):
-    p = wordInfo.pris
-    return ("gai1" in p or "ichi1" in p or "news1" in p or "spec1" in p)
+def wordIsP1(wq):
+    p = wq.pris
+    return ("gai1" in p or "ichi1" in p or "news1" in p or "spec1" in p or "spec2" in p)
 
-def wordIsP1orP2(wordInfo):
-    return (len(wordInfo.pris) > 0)
-
-def questionFilter(q):
-    return questionFilterExtra(q) and q.isLikely()
+def wordIsP1orP2(wq):
+    return (len(wq.pris) > 0)
 
 def questionKey(q):
-    return (q.kanjiKnown, q.kanaKnown, q.nf)
-
-def questionFilterExtra(q):
-    return q.kanjiKnown != KNOWN_NOT or q.kanaKnown != KNOWN_NOT or q.nf <= 10
+    return (q.kanjiKnown, q.kanaKnown, q.nf, not wordIsP1orP2(q))
 
 config["questionMatchLikely"] = wordIsP1
 config["questionMatchConfuse"] = wordIsP1orP2
@@ -101,5 +97,11 @@ config["learnMatchLikely"] = wordIsP1
 config["learnMatchConfuse"] = wordIsP1
 config["questionKey"] = questionKey
 config["questionKeyExtra"] = questionKey
-config["questionFilter"] = questionFilter  #replaced with questionFilterExtra if allowAmbig is True
-config["questionFilterExtra"] = questionFilterExtra
+
+config["freqFilters"] = collections.OrderedDict()
+config["freqFilters"]["none"] = lambda q: False
+config["freqFilters"]["nf12 (6k words)"] = lambda q: q.nf <= 12
+config["freqFilters"]["news1 (12k words)"] = lambda q: q.nf <= 24
+config["freqFilters"]["P (18k words)"] = wordIsP1
+config["freqFilters"]["P2 (25k words)"] = wordIsP1orP2
+config["freqFilters"]["all"] = lambda q: True
