@@ -8,7 +8,8 @@ import collections
 
 KNOWN_MATURE = 0
 KNOWN_KNOWN = 1
-KNOWN_NOT = 2
+KNOWN_INACTIVE = 2
+KNOWN_NOT = 3
 
 LEARNED_YES = 0
 LEARNED_ALREADY = 1
@@ -98,6 +99,7 @@ class Question:
     def ankiQuestion(self):
         result = ankiFurigana(self.question, self.reading)
         flags = []
+        #one flag for known status
         if self.kanjiKnown == KNOWN_MATURE:
             flags.append("kv_kanji_mature")
         elif self.kanjiKnown == KNOWN_KNOWN:
@@ -106,8 +108,13 @@ class Question:
             flags.append("kv_kana_mature")
         elif self.kanaKnown == KNOWN_KNOWN:
             flags.append("kv_kana_known")
+        elif self.kanjiKnown == KNOWN_INACTIVE:
+            flags.append("kv_kanji_inactive")
+        elif self.kanaKnown == KNOWN_INACTIVE:
+            flags.append("kv_kana_inactive")
         else:
             flags.append("kv_unknown")
+        #and one flag for uniqueness
         if self.isUnique():
             flags.append("kv_unique")
         elif self.isLikely():

@@ -49,6 +49,9 @@ Also, each word will have exactly one of the following classes (with the ones li
 * "kv_kanji_known" for words where the kanji version is known;
 * "kv_kana_mature" for words where the kana version is mature;
 * "kv_kana_known" for words where the kana version is known;
+* "kv_kanji_inactive" for words where the kanji version was scanned from a new or suspended card;
+* "kv_kana_inactive" for words where the kana version was scanned from a new or suspended card;
+* "kv_unknown" for words which were not scanned.
 
 Since they are separated like this, it makes sense to use text styles for one set and background colour for the other.
 
@@ -70,4 +73,5 @@ In the "Cards to scan" tab, each row can be set to a different scan:
 * "Note type" is the note type you wish to scan. A note type can appear more than once with different options.
 * "Scan type" can be "vocab" or "text". A vocab scan considers the expression and reading as-is (the reading is optional). A text scan splits the expression with MeCab (and does not use a reading).
 * The other drop-downs let you select the expression and reading fields for each scan.
+* The checkboxes let you choose whether each scan will consider new and suspended cards. Words from such cards will be prioritised above dictionary words, but not counted as "known".
 

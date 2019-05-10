@@ -137,6 +137,7 @@ def _updateKanjiVocab():
         modelName = scanDic["noteType"]
         expressionFieldName = scanDic["expression"]
         readingFieldName = scanDic["reading"]
+        includeInactive = scanDic["inactive"]
         model = mw.col.models.byName(modelName)
         nids = mw.col.findNotes("mid:" + str(model["id"]))
         for nid in nids:
@@ -148,9 +149,11 @@ def _updateKanjiVocab():
                 cardMature = cardActive and card.ivl >= 21 #TODO: configurable?
                 noteActive = noteActive or cardActive
                 noteMature = noteMature or cardMature
-            if noteActive:
+            if noteActive or includeInactive:
                 wordCounts[scanIndex]["cells"] += 1
-                known = kvcore.KNOWN_KNOWN
+                known = kvcore.KNOWN_INACTIVE
+                if noteActive:
+                    known = kvcore.KNOWN_KNOWN
                 if noteMature:
                     known = kvcore.KNOWN_MATURE
                 expression = furigana.kanji(clean(note[expressionFieldName]))
@@ -182,7 +185,7 @@ def _updateKanjiVocab():
             output += '(field "%s")\n' % (scanDic["expression"],)
         else:
             output += '(fields "%s", "%s")\n' % (scanDic["expression"], scanDic["reading"])
-        msg = " Marked %d known words from %d active notes\n"
+        msg = " Using %d words from %d notes\n"
         output += msg % (wc[kvcore.LEARNED_YES], wc["cells"])
         msg = " (%d duplicates, %d with >1 possible word, %d not found)\n"
         output += msg % (wc[kvcore.LEARNED_ALREADY],

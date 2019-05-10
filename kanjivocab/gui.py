@@ -108,19 +108,22 @@ class Settings(QDialog):
         self.layoutScan.addWidget(QLabel(text="Scan type"), 0, 1)
         self.layoutScan.addWidget(QLabel(text="Expression field"), 0, 2)
         self.layoutScan.addWidget(QLabel(text="Reading field"), 0, 3)
+        self.layoutScan.addWidget(QLabel(text="Include<br>inactive"), 0, 4)
         
         numScans = self.conf["numScans"]
         self.pickScanNoteTypes = [ComboBoxKV() for i in range(numScans)]
         self.pickScanTypes = [ComboBoxKV() for i in range(numScans)]
         self.pickScanExpressions = [ComboBoxKV() for i in range(numScans)]
         self.pickScanReadings = [ComboBoxKV() for i in range(numScans)]
+        self.pickScanInactives = [QCheckBox() for i in range(numScans)]
         self.pickScanColumns = [
             self.pickScanNoteTypes,
             self.pickScanTypes,
             self.pickScanExpressions,
-            self.pickScanReadings]
+            self.pickScanReadings,
+            self.pickScanInactives]
         for row in range(numScans):
-            for col in range(4):
+            for col in range(5):
                 self.layoutScan.addWidget(self.pickScanColumns[col][row], row + 1, col)
         
         
@@ -210,7 +213,13 @@ class Settings(QDialog):
             def pickScanReadingChanged(text, r=row):
                 scanConfs[r]["reading"] = text
             self.pickScanReadings[row].setup(scanConfs[row], "reading", pickScanReadingChanged)
-    
+            
+            def pickScanInactiveChanged(state, r=row):
+                scanConfs[r]["inactive"] = self.pickScanInactives[r].isChecked()
+            self.pickScanInactives[row].setChecked(scanConfs[row].get("inactive", False))
+            pickScanInactiveChanged(None)
+            self.pickScanInactives[row].stateChanged.connect(pickScanInactiveChanged)
+
 
     def lookupFieldNames(self, noteTypeName):
         model = self.mw.col.models.byName(noteTypeName)

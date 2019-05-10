@@ -39,6 +39,7 @@ config["allowAmbig"] = False
 #  If you don't have a reading field, set "reading" to "" (empty string).
 #The "text" scan splits the expression with MeCab.
 #  ("reading" should be an empty string)
+#"inactive" is a boolean, indicating whether to scan new and suspended cards.
 config["scan"] = []
 #This variable is just an example and doesn't do anything:
 configScanExample = [
@@ -46,13 +47,15 @@ configScanExample = [
         "noteType": "vocab",
         "scanType": "vocab",
         "expression": "expression",
-        "reading": "kana"
+        "reading": "kana",
+        "inactive": False
     },
     {
         "noteType": "Nayrs Japanese Core5000",
         "scanType": "text",
         "expression": "Expression",
-        "reading": ""
+        "reading": "",
+        "inactive": True
     }
 ]
 
