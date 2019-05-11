@@ -137,7 +137,7 @@ def _updateKanjiVocab():
         modelName = scanDic["noteType"]
         expressionFieldName = scanDic["expression"]
         readingFieldName = scanDic["reading"]
-        includeInactive = scanDic["inactive"]
+        includeInactive = scanDic["includeInactive"]
         model = mw.col.models.byName(modelName)
         nids = mw.col.findNotes("mid:" + str(model["id"]))
         for nid in nids:

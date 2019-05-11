@@ -215,8 +215,8 @@ class Settings(QDialog):
             self.pickScanReadings[row].setup(scanConfs[row], "reading", pickScanReadingChanged)
             
             def pickScanInactiveChanged(state, r=row):
-                scanConfs[r]["inactive"] = self.pickScanInactives[r].isChecked()
-            self.pickScanInactives[row].setChecked(scanConfs[row].get("inactive", False))
+                scanConfs[r]["includeInactive"] = self.pickScanInactives[r].isChecked()
+            self.pickScanInactives[row].setChecked(scanConfs[row].get("includeInactive", False))
             pickScanInactiveChanged(None)
             self.pickScanInactives[row].stateChanged.connect(pickScanInactiveChanged)
 
