@@ -205,10 +205,14 @@ def _updateKanjiVocab():
     nids = mw.col.findNotes("mid:" + str(model["id"]))
     filledKanji = 0
     knownKanji = 0
+    frozenKanji = 0
     def hasKnown(text):
         return "_known" in text or "_mature" in text
     for nid in nids:
         note = mw.col.getNote(nid)
+        if note.hasTag(conf["freezeAnkiTag"]):
+            frozenKanji += 1
+            continue
         kanji = clean(note[conf["fieldKanji"]])
         (fieldQ, fieldR, fieldX) = questions.getAnkiFields(kanji)
         filled = False
@@ -236,8 +240,8 @@ def _updateKanjiVocab():
         if known:
             knownKanji += 1
         note.flush()
-    output += "Updated %d kanji notes\n (%d with word(s), %d with known word(s))\n" % \
-        (len(nids), filledKanji, knownKanji)
+    output += "Updated %d/%d kanji notes\n (%d with word(s), %d with known word(s))\n" % \
+        (len(nids)-frozenKanji, len(nids), filledKanji, knownKanji)
     
     
     mw.progress.finish()

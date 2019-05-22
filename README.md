@@ -36,6 +36,8 @@ The above fields contain furigana, so add them using {{furigana:KanjiVocabQuesti
 
 Note: These were renamed to remove spaces (as spaces make searching etc more awkward). You can rename existing fields within Anki. Apologies for any inconvenience.
 
+With each run of KanjiVocab, these fields will be overwritten and anything already in them will be lost. Notes with the tag "KanjiVocabFreeze" are left alone; but heavy use of this tag may create more work for you later. Consider putting hand-edited material into other fields instead.
+
 CSS Setup
 ---------
 

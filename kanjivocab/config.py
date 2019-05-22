@@ -76,6 +76,7 @@ config["fieldVocabExtra"] = u"KanjiVocabExtra"
 
 config["numScans"] = 8
 config["questionChar"] = u"〇"
+config["freezeAnkiTag"] = "KanjiVocabFreeze"
 
 config["allowOverride"] = ["noteType", "fieldKanji", "freqFilter", "numQuestions", "numExtra", "allowAmbig", "scan"]
 config["pathDicFile"] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jmdict_freqs.txt")
