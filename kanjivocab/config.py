@@ -64,13 +64,13 @@ configScanExample = [
 #ADD THESE FIELDS TO YOUR DECK. THE CONTENTS WILL BE OVERWRITTEN WITH EACH RUN.
 
 #Words with masked kanji on the front of the card. FIELD WILL BE OVERWRITTEN.
-config["fieldVocabQuestion"] = u"KanjiVocab question"
+config["fieldVocabQuestion"] = u"KanjiVocabQuestion"
 
 #Answers to the above questions on the back of the card. FIELD WILL BE OVERWRITTEN. 
-config["fieldVocabResponse"] = u"KanjiVocab answer"
+config["fieldVocabResponse"] = u"KanjiVocabAnswer"
 
 #Extra vocab on the back of the card. FIELD WILL BE OVERWRITTEN.
-config["fieldVocabExtra"] = u"KanjiVocab extra"
+config["fieldVocabExtra"] = u"KanjiVocabExtra"
 
 
 

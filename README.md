@@ -28,11 +28,13 @@ Field Setup
 
 Add fields to your kanji deck for the new information, named as follows:
 
-* "KanjiVocab question" for the words with masked kanji (put this on the front of the card);
-* "KanjiVocab answer" for the answers to the questions (put this on the back of the card, ideally so that it appears in the same place as the question field);
-* "KanjiVocab extra" for words which would have more than one likely answer (put this on the back of the card).
+* "KanjiVocabQuestion" for the words with masked kanji (put this on the front of the card);
+* "KanjiVocabAnswer" for the answers to the questions (put this on the back of the card, ideally so that it appears in the same place as the question field);
+* "KanjiVocabExtra" for words which would have more than one likely answer (put this on the back of the card).
 
-The above fields contain furigana, so add them using {{furigana:KanjiVocab question}} etc.
+The above fields contain furigana, so add them using {{furigana:KanjiVocabQuestion}} etc.
+
+Note: These were renamed to remove spaces (as spaces make searching etc more awkward). You can rename existing fields within Anki. Apologies for any inconvenience.
 
 CSS Setup
 ---------
