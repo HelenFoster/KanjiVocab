@@ -1,10 +1,14 @@
-KanjiVocab
+KanjiVocab - smart automatic vocab for RTK
 ==========
 
 Introduction
 ------------
 
-This Anki addon adds Japanese words to a kanji writing deck (such as RTK), using known words from other decks.
+This Anki addon adds Japanese words to a kanji writing deck (such as Remembering The Kanji), using known words from other decks. It makes post-completion RTK reviews much more pleasant, and helps link all the new words you're learning with what you learned in RTK.
+
+The addon can add words to the question side with the target kanji hidden, to help decide which kanji to write. It tries to prioritise known words and common words, and avoid words that might suggest the wrong answer. It scans cards in other decks to determine which words are known. It gets the best results from vocab cards, particularly if they have vocab expression and reading fields. It can also scan sentence fields for the words within (this requires the Japanese Support addon). The results are saved into the kanji cards, so can be synced to non-desktop versions of Anki.
+
+AnkiWeb: https://ankiweb.net/shared/info/1600796261 (may be an older version).
 
 Vocab card scanning is self-contained. Text scanning requires the "Japanese Support" addon. See https://ankiweb.net/shared/info/3918629684
 

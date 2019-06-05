@@ -1,20 +1,20 @@
 #!/usr/bin/sh
 
 # Run this file from the directory it's in.
-# Creates kanjivocab20.zip (for Anki 2.0) and kanjivocab21.zip (for Anki 2.1)
+# Creates kanjivocab.zip (for Anki 2.0) and kanjivocab.ankiaddon (for Anki 2.1)
 
-if [ -e "kanjivocab20.zip" ]
+if [ -e "kanjivocab.zip" ]
 then
-  echo "Please rename or delete kanjivocab20.zip"
+  echo "Please rename or delete kanjivocab.zip"
   exit
 fi
 
-if [ -e "kanjivocab21.zip" ]
+if [ -e "kanjivocab.ankiaddon" ]
 then
-  echo "Please rename or delete kanjivocab21.zip"
+  echo "Please rename or delete kanjivocab.ankiaddon"
   exit
 fi
 
-zip -r kanjivocab20.zip KanjiVocab.py kanjivocab --exclude \*.pyc \*pycache\*
+zip -r kanjivocab.zip KanjiVocab.py kanjivocab --exclude \*.pyc \*pycache\*
 
-zip -rj kanjivocab21.zip kanjivocab --exclude \*.pyc \*pycache\*
+zip -rj kanjivocab.ankiaddon kanjivocab --exclude \*.pyc \*pycache\*
