@@ -8,7 +8,7 @@ from copy import deepcopy
 from aqt import mw
 from aqt.utils import *
 from anki.utils import stripHTML
-from anki.template import furigana
+from . import furigana
 
 try:
     from importlib import reload

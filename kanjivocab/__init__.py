@@ -5,7 +5,6 @@
 # KanjiVocab is an Anki addon which adds known vocab to a kanji deck.
 
 from aqt import mw
-from aqt.utils import showInfo
 from aqt.qt import QAction
 
 try:
