@@ -28,7 +28,8 @@ class Splitter:
         
         mecabCmd = self.jpr.mungeForPlatform(
             [os.path.join(supportDir, "mecab")] + mecabArgs + [
-                '-d', supportDir, '-r', os.path.join(supportDir,"mecabrc")])
+                '-d', supportDir, '-r', os.path.join(supportDir,"mecabrc"),
+                '-u', os.path.join(supportDir, "user_dic.dic")])
         os.environ['DYLD_LIBRARY_PATH'] = supportDir
         os.environ['LD_LIBRARY_PATH'] = supportDir
         
@@ -44,8 +45,8 @@ class Splitter:
 
     def analyze(self, expr):
         expr = self.jpr.escapeText(expr)
-        self.mecab.stdin.write(expr.encode("euc-jp", "ignore") + b'\n')
+        self.mecab.stdin.write(expr.encode("utf-8", "ignore") + b'\n')
         self.mecab.stdin.flush()
-        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('euc-jp')
+        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode("utf-8", "replace")
         return expr.split("@")
 
