@@ -10,7 +10,7 @@ The addon can add words to the question side with the target kanji hidden, to he
 
 AnkiWeb: https://ankiweb.net/shared/info/1600796261 (may be an older version).
 
-Vocab card scanning is self-contained. Text scanning requires the "Japanese Support" addon. See https://ankiweb.net/shared/info/3918629684
+Vocab card scanning is self-contained. Text scanning requires a recent version of the "Japanese Support" addon. See https://ankiweb.net/shared/info/3918629684
 
 The Python code is licensed under the GNU AGPL, version 3 or later (the same as Anki itself). See http://www.gnu.org/licenses/agpl.html
 
@@ -19,11 +19,11 @@ This addon includes a dictionary derived from the JMdict dictionary file. JMdict
 Installation
 ------------
 
+This version is for Anki 2.1 only.
+
 Always backup your collection before installing an addon that modifies it!
 
-**Anki 2.1:** Copy the `kanjivocab` directory into the Anki `addons21` directory.
-
-**Anki 2.0:** Copy `KanjiVocab.py` and the `kanjivocab` directory into the Anki `addons` directory.
+Copy the `kanjivocab` directory into the Anki `addons21` directory.
 
 Restart Anki, and "KanjiVocab..." should appear on the Tools menu. This opens a dialog with the various options.
 
